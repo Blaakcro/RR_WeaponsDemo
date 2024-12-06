@@ -1,0 +1,30 @@
+{
+ "SoundBanksInfo": {
+  "Platform": "Windows",
+  "BasePlatform": "Windows",
+  "SchemaVersion": "16",
+  "SoundBankVersion": "150",
+  "SoundBanks": [
+   {
+    "Id": "3205342581",
+    "Type": "Bus",
+    "GUID": "{7A564B30-81A7-4002-8BB5-8925C20AA907}",
+    "Language": "SFX",
+    "Hash": "{F07F7889-C258-8990-DD6C-7236214EC90F}",
+    "ObjectPath": "RoomSmall",
+    "ShortName": "RoomSmall",
+    "Path": "Bus/RoomSmall.bnk",
+    "AuxBusses": [
+     {
+      "Id": "3205342581",
+      "Name": "RoomSmall",
+      "ObjectPath": "\\Master-Mixer Hierarchy\\Default Work Unit\\Master Audio Bus\\REVERBS\\RoomSmall",
+      "GUID": "{7A564B30-81A7-4002-8BB5-8925C20AA907}",
+      "MaxAttenuation": "1500"
+     }
+    ]
+   }
+  ],
+  "FileHash": "{511908EB-6813-A834-5EB1-F621A6103201}"
+ }
+}

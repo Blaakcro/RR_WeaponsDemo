@@ -1,0 +1,30 @@
+{
+ "SoundBanksInfo": {
+  "Platform": "Windows",
+  "BasePlatform": "Windows",
+  "SchemaVersion": "16",
+  "SoundBankVersion": "150",
+  "SoundBanks": [
+   {
+    "Id": "2213992659",
+    "Type": "Bus",
+    "GUID": "{790B621A-AD9D-4ABE-BEF2-2D35F632FF72}",
+    "Language": "SFX",
+    "Hash": "{CDE7DB1D-037D-2548-C37E-EC0BF455D72C}",
+    "ObjectPath": "Exterior",
+    "ShortName": "Exterior",
+    "Path": "Bus/Exterior.bnk",
+    "AuxBusses": [
+     {
+      "Id": "2213992659",
+      "Name": "Exterior",
+      "ObjectPath": "\\Master-Mixer Hierarchy\\Default Work Unit\\Master Audio Bus\\REVERBS\\Exterior",
+      "GUID": "{790B621A-AD9D-4ABE-BEF2-2D35F632FF72}",
+      "MaxAttenuation": "1500"
+     }
+    ]
+   }
+  ],
+  "FileHash": "{5999D3F3-9D10-443D-C59D-550841D00E24}"
+ }
+}

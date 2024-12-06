@@ -1,0 +1,30 @@
+{
+ "SoundBanksInfo": {
+  "Platform": "Windows",
+  "BasePlatform": "Windows",
+  "SchemaVersion": "16",
+  "SoundBankVersion": "150",
+  "SoundBanks": [
+   {
+    "Id": "3553615197",
+    "Type": "Bus",
+    "GUID": "{516F26D9-E56A-4B15-932C-0A47517CD265}",
+    "Language": "SFX",
+    "Hash": "{DDD0FC84-EEAB-1F80-4E31-BFFBBCA45F99}",
+    "ObjectPath": "RoomLarge",
+    "ShortName": "RoomLarge",
+    "Path": "Bus/RoomLarge.bnk",
+    "AuxBusses": [
+     {
+      "Id": "3553615197",
+      "Name": "RoomLarge",
+      "ObjectPath": "\\Master-Mixer Hierarchy\\Default Work Unit\\Master Audio Bus\\REVERBS\\RoomLarge",
+      "GUID": "{516F26D9-E56A-4B15-932C-0A47517CD265}",
+      "MaxAttenuation": "1500"
+     }
+    ]
+   }
+  ],
+  "FileHash": "{8AD95458-6F0B-DECE-2F0A-B64D7DF4F90F}"
+ }
+}

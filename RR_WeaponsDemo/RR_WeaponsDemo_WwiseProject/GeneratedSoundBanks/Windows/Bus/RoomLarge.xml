@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SoundBanksInfo Platform="Windows" BasePlatform="Windows" SchemaVersion="16" SoundBankVersion="150">
+	<SoundBanks>
+		<SoundBank Id="3553615197" Type="Bus" GUID="{516F26D9-E56A-4B15-932C-0A47517CD265}" Language="SFX" Hash="{DDD0FC84-EEAB-1F80-4E31-BFFBBCA45F99}">
+			<ObjectPath>RoomLarge</ObjectPath>
+			<ShortName>RoomLarge</ShortName>
+			<Path>Bus/RoomLarge.bnk</Path>
+			<AuxBusses>
+				<AuxBus Id="3553615197" Name="RoomLarge" ObjectPath="\Master-Mixer Hierarchy\Default Work Unit\Master Audio Bus\REVERBS\RoomLarge" GUID="{516F26D9-E56A-4B15-932C-0A47517CD265}" MaxAttenuation="1500"/>
+			</AuxBusses>
+		</SoundBank>
+	</SoundBanks>
+	<FileHash>{92D60845-92A3-6C1E-755F-A3C318752484}</FileHash>
+</SoundBanksInfo>
