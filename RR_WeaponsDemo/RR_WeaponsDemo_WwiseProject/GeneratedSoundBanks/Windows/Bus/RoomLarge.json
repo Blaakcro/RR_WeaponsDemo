@@ -10,7 +10,7 @@
     "Type": "Bus",
     "GUID": "{516F26D9-E56A-4B15-932C-0A47517CD265}",
     "Language": "SFX",
-    "Hash": "{820236AD-3533-B803-B87D-EC33A7D05CF9}",
+    "Hash": "{B3D1791A-1274-5F78-B461-B486729B25E3}",
     "ObjectPath": "RoomLarge",
     "ShortName": "RoomLarge",
     "Path": "Bus/RoomLarge.bnk",
@@ -25,6 +25,6 @@
     ]
    }
   ],
-  "FileHash": "{93DAC8A3-3041-CCC2-0E78-B7650F41535E}"
+  "FileHash": "{D3C5A5E7-F552-386E-2C15-591EB5DF7EAF}"
  }
 }

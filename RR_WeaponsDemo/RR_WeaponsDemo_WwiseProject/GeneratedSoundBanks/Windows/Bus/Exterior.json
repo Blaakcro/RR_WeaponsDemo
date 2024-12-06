@@ -10,7 +10,7 @@
     "Type": "Bus",
     "GUID": "{790B621A-AD9D-4ABE-BEF2-2D35F632FF72}",
     "Language": "SFX",
-    "Hash": "{DBA7F02A-66A6-27E0-34A5-936903B3A875}",
+    "Hash": "{A3285F9E-83A9-060F-CE92-D04F9AC338EE}",
     "ObjectPath": "Exterior",
     "ShortName": "Exterior",
     "Path": "Bus/Exterior.bnk",
@@ -25,6 +25,6 @@
     ]
    }
   ],
-  "FileHash": "{20D8220B-03E9-0F5D-F112-A6DA25C50888}"
+  "FileHash": "{5E44DA8B-2F58-26F9-B28F-2E4213C3CA9D}"
  }
 }

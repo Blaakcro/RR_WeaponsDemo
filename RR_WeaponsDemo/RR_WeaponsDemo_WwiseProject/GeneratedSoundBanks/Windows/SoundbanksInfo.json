@@ -18,7 +18,7 @@
     "Type": "User",
     "GUID": "{701ECBBD-9C7B-4030-8CDB-749EE5D1C7B9}",
     "Language": "SFX",
-    "Hash": "{5BFBC534-5545-CD71-1CAE-3DBD9461DD15}",
+    "Hash": "{3C2750DD-B5FC-7261-D244-0864FDEDD2BF}",
     "ObjectPath": "Init",
     "ShortName": "Init",
     "Path": "Init.bnk",
@@ -197,7 +197,7 @@
     "Type": "Event",
     "GUID": "{6654F1B8-32AA-4A18-AC3E-6B8DE7BD67A9}",
     "Language": "SFX",
-    "Hash": "{92FD6F17-6FF8-3B16-9B6B-E1444FC7EECB}",
+    "Hash": "{7C65F825-8E12-DD80-CD10-D39C91657DCC}",
     "ObjectPath": "Play_CharacterFootstep",
     "ShortName": "Play_CharacterFootstep",
     "Path": "Event/Play_CharacterFootstep.bnk",
@@ -617,7 +617,7 @@
     "Type": "Bus",
     "GUID": "{790B621A-AD9D-4ABE-BEF2-2D35F632FF72}",
     "Language": "SFX",
-    "Hash": "{DBA7F02A-66A6-27E0-34A5-936903B3A875}",
+    "Hash": "{A3285F9E-83A9-060F-CE92-D04F9AC338EE}",
     "ObjectPath": "Exterior",
     "ShortName": "Exterior",
     "Path": "Bus/Exterior.bnk",
@@ -636,7 +636,7 @@
     "Type": "Bus",
     "GUID": "{7A564B30-81A7-4002-8BB5-8925C20AA907}",
     "Language": "SFX",
-    "Hash": "{CFEE2BBB-AD60-2F3D-3217-54322B8B8B51}",
+    "Hash": "{FED92050-89C3-1D11-573A-DA91A171CC9A}",
     "ObjectPath": "RoomSmall",
     "ShortName": "RoomSmall",
     "Path": "Bus/RoomSmall.bnk",
@@ -655,7 +655,7 @@
     "Type": "Bus",
     "GUID": "{516F26D9-E56A-4B15-932C-0A47517CD265}",
     "Language": "SFX",
-    "Hash": "{820236AD-3533-B803-B87D-EC33A7D05CF9}",
+    "Hash": "{B3D1791A-1274-5F78-B461-B486729B25E3}",
     "ObjectPath": "RoomLarge",
     "ShortName": "RoomLarge",
     "Path": "Bus/RoomLarge.bnk",
@@ -670,6 +670,6 @@
     ]
    }
   ],
-  "FileHash": "{7BC82D04-0C05-167E-854C-507B01C2C558}"
+  "FileHash": "{553E7791-8A49-3AD4-BD52-999123646000}"
  }
 }
