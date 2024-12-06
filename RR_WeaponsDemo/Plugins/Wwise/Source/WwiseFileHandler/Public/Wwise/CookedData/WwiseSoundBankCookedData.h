@@ -18,6 +18,7 @@ Copyright (c) 2024 Audiokinetic Inc.
 #pragma once
 
 #include "AkInclude.h"
+#include "WwiseUnrealDefines.h"
 
 #include "WwiseSoundBankCookedData.generated.h"
 
@@ -84,9 +85,19 @@ struct WWISEFILEHANDLER_API FWwiseSoundBankCookedData
 	UPROPERTY(BlueprintReadOnly, VisibleInstanceOnly, Category = "Wwise")
 	FName DebugName;
 
+#if WITH_EDITORONLY_DATA
+	/**
+	 * @brief Path name in the source Generated SoundBanks folder.
+	*/
+	FString SourcePathName;
+#endif
+
 	FWwiseSoundBankCookedData();
 
 	void Serialize(FArchive& Ar);
+#if WITH_EDITORONLY_DATA && UE_5_5_OR_LATER
+	void PreSave(FObjectPreSaveContext& SaveContext, FCbWriter& Writer) const;
+#endif
 
 	FString GetDebugString() const;
 };

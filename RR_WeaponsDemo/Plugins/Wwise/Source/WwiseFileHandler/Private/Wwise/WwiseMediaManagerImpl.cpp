@@ -209,7 +209,12 @@ void FWwiseMediaManagerImpl::DoSetMedia()
 void FWwiseMediaManagerImpl::DoUnsetMedia()
 {
 	TArray<AKRESULT> Results;
-	Results.AddZeroed(UnsetMediaOps.Num());
+	Results.AddUninitialized(UnsetMediaOps.Num());
+	for (auto& Result : Results)
+	{
+		Result = AK_Success;
+	}
+
 	ON_SCOPE_EXIT
 	{
 		for (int Iter = 0; Iter < UnsetMediaCallbacks.Num(); ++Iter)
@@ -227,6 +232,12 @@ void FWwiseMediaManagerImpl::DoUnsetMedia()
 	if (UNLIKELY(!SoundEngine))
 	{
 		UE_LOG(LogWwiseFileHandler, Log, TEXT("FWwiseMediaManagerImpl::DoUnsetMedia: Failed unloading %" PRIu32 " media without a SoundEngine."), UnsetMediaOps.Num());
+		return;
+	}
+
+	if (UNLIKELY(IsEngineExitRequested() && !SoundEngine->IsInitialized()))
+	{
+		UE_LOG(LogWwiseFileHandler, Log, TEXT("FWwiseMediaManagerImpl::DoUnsetMedia: Cannot unload %" PRIu32 " media with an uninitialized SoundEngine."), UnsetMediaOps.Num());
 		return;
 	}
 

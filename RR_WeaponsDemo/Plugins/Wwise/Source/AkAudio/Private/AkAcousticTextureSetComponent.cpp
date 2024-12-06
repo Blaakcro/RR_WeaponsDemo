@@ -259,7 +259,7 @@ void UAkAcousticTextureSetComponent::RemoveGeometryInstanceFromWwise()
 	if (GeometryInstanceHasBeenSent)
 	{
 		FAkAudioDevice* AkAudioDevice = FAkAudioDevice::Get();
-		if (AkAudioDevice != nullptr && AkAudioDevice->RemoveGeometrySet(GetGeometrySetID()) == AK_Success)
+		if (AkAudioDevice != nullptr && AkAudioDevice->RemoveGeometryInstance(GetGeometrySetID()) == AK_Success)
 			GeometryInstanceHasBeenSent = false;
 	}
 }

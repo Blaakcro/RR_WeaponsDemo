@@ -93,7 +93,7 @@ namespace AkInitializationSettings_Helpers
 		// Filter out audioFrameBoundary bookmarks, because those occur too frequently
 		if (in_uPluginID != AKMAKECLASSID(AkPluginTypeNone, AKCOMPANYID_AUDIOKINETIC, AK::ProfilingID::AudioFrameBoundary))
 		{
-			TRACE_BOOKMARK(TEXT("AK Marker: %s"), in_pszMarkerName);
+			TRACE_BOOKMARK(TEXT("AK Marker: %hs"), in_pszMarkerName);
 		}
 	}
 }

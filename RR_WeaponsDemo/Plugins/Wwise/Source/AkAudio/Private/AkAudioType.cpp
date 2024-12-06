@@ -260,6 +260,18 @@ void UAkAudioType::GetAssetRegistryTags(TArray<FAssetRegistryTag>& OutTags) cons
 #endif // UE_5_4_OR_LATER
 #endif // WITH_EDITOR
 
+
+#if WITH_EDITORONLY_DATA && UE_5_5_OR_LATER
+void UAkAudioType::HashDependenciesForCook(FCbFieldViewIterator Args, UE::Cook::FCookDependencyContext& Context)
+{
+	TArray<uint8> Memory;
+	Memory.AddUninitialized(Args.GetSize());
+	FMutableMemoryView MemoryView(Memory.GetData(), Memory.Num());
+	Args.CopyTo(MemoryView);
+	Context.Update(Memory.GetData(), Memory.Num());
+}
+#endif
+
 void UAkAudioType::BeginCacheForCookedPlatformData(const ITargetPlatform* TargetPlatform)
 {
 	if (auto* AkSettings = GetDefault<UAkSettings>())

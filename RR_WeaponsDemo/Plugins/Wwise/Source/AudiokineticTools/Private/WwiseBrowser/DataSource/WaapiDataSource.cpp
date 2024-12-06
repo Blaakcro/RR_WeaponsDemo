@@ -1097,6 +1097,7 @@ EWwiseConnectionStatus FWaapiDataSource::IsProjectLoaded()
 			{
 				UnrealRootOutputPath += "/";
 			}
+			FAkWaapiClient::ConvertProjectPath(WaapiRootOutputPath);
 			if(WaapiRootOutputPath != UnrealRootOutputPath)
 			{
 				return EWwiseConnectionStatus::WrongRootOutputPath;

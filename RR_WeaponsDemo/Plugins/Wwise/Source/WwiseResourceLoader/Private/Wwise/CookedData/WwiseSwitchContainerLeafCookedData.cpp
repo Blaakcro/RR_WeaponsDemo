@@ -21,6 +21,10 @@ Copyright (c) 2024 Audiokinetic Inc.
 
 #include <inttypes.h>
 
+#if WITH_EDITORONLY_DATA && UE_5_5_OR_LATER
+#include "Serialization/CompactBinaryWriter.h"
+#endif
+
 FWwiseSwitchContainerLeafCookedData::FWwiseSwitchContainerLeafCookedData():
 	GroupValueSet(),
 	SoundBanks(),
@@ -43,6 +47,52 @@ void FWwiseSwitchContainerLeafCookedData::Serialize(FArchive& Ar)
 	}
 }
 
+
+#if WITH_EDITORONLY_DATA && UE_5_5_OR_LATER
+void FWwiseSwitchContainerLeafCookedData::PreSave(FObjectPreSaveContext& SaveContext, FCbWriter& Writer) const
+{
+	Writer << "L";
+	Writer.BeginObject();
+
+	{
+		Writer << "GVs";
+		Writer.BeginArray();
+		auto GroupValueArray{ GroupValueSet.Array() };
+		GroupValueArray.Sort();
+	
+		for (const auto& GroupValue : GroupValueArray)
+		{
+			GroupValue.PreSave(SaveContext, Writer);
+		}
+		Writer.EndArray();
+	}
+
+	Writer << "SBs";
+	Writer.BeginArray();
+	for (const auto& SoundBank : SoundBanks)
+	{
+		SoundBank.PreSave(SaveContext, Writer);
+	}
+	Writer.EndArray();
+
+	Writer << "Ms";
+	Writer.BeginArray();
+	for (const auto& MediaItem : Media)
+	{
+		MediaItem.PreSave(SaveContext, Writer);
+	}
+	Writer.EndArray();
+
+	Writer << "ESs";
+	Writer.BeginArray();
+	for (const auto& ExternalSource : ExternalSources)
+	{
+		ExternalSource.PreSave(SaveContext, Writer);
+	}
+	Writer.EndArray();
+	Writer.EndObject();
+}
+#endif
 bool FWwiseSwitchContainerLeafCookedData::operator==(const FWwiseSwitchContainerLeafCookedData& Rhs) const
 {
 	if (GroupValueSet.Num() != Rhs.GroupValueSet.Num() ||

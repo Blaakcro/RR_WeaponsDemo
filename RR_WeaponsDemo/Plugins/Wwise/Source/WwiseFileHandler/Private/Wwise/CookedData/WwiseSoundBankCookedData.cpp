@@ -18,6 +18,13 @@ Copyright (c) 2024 Audiokinetic Inc.
 #include "Wwise/CookedData/WwiseSoundBankCookedData.h"
 
 #include "Wwise/Stats/FileHandler.h"
+
+#if WITH_EDITORONLY_DATA && UE_5_5_OR_LATER
+#include "Cooker/CookDependency.h"
+#include "UObject/ObjectSaveContext.h"
+#include "Serialization/CompactBinaryWriter.h"
+#endif
+
 #include <inttypes.h>
 
 FWwiseSoundBankCookedData::FWwiseSoundBankCookedData() :
@@ -48,6 +55,30 @@ void FWwiseSoundBankCookedData::Serialize(FArchive& Ar)
 		UE_CLOG(Ar.IsLoading(), LogWwiseFileHandler, VeryVerbose, TEXT("Serializing from tagged archive %s SoundBankCookedData %" PRIu32 " %s"), *Ar.GetArchiveName(), SoundBankId, *DebugName.ToString());
 	}
 }
+
+#if WITH_EDITORONLY_DATA && UE_5_5_OR_LATER
+void FWwiseSoundBankCookedData::PreSave(FObjectPreSaveContext& SaveContext, FCbWriter& Writer) const
+{
+	Writer << "SB";
+	Writer.BeginObject();
+	Writer
+		<< "Bank" << SoundBankId
+		<< "ContainsMedia" << bContainsMedia
+		<< "Type" << static_cast<uint8>(SoundBankType);
+	
+	SaveContext.AddCookBuildDependency(UE::Cook::FCookDependency::File(SourcePathName));
+
+	Writer << "F";
+	Writer.BeginObject();
+	Writer
+		<< "PN" << SoundBankPathName
+		<< "A" << MemoryAlignment
+		<< "D" << bDeviceMemory;
+	Writer.EndObject();
+
+	Writer.EndObject();
+}
+#endif
 
 FString FWwiseSoundBankCookedData::GetDebugString() const
 {

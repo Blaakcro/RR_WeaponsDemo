@@ -55,7 +55,7 @@ WwiseDialogueArgumentIdsMap FWwiseRefDialogueEvent::GetDialogueArguments(const W
 	{
 		return {};
 	}
-	const auto Arguments = DialogueEvent->Arguments;
+	const auto& Arguments = DialogueEvent->Arguments;
 	WwiseDialogueArgumentIdsMap Result;
 	Result.Empty(Arguments.Num());
 	for (const auto& Elem : Arguments)

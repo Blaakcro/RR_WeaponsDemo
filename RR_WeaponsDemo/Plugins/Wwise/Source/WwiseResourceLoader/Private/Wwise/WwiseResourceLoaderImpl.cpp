@@ -514,7 +514,8 @@ FWwiseLoadedAuxBusPtr FWwiseResourceLoaderImpl::CreateAuxBusNode(
 	const auto* LanguageKey = GetLanguageMapKey(InAuxBusCookedData.AuxBusLanguageMap, InLanguageOverride, InAuxBusCookedData.DebugName);
 	if (UNLIKELY(!LanguageKey))
 	{
-		UE_LOG(LogWwiseResourceLoader, Error, TEXT("CreateAuxBusNode: Could not find language for Aux Bus %s"), *InAuxBusCookedData.DebugName.ToString());
+		UE_LOG(LogWwiseResourceLoader, Error, TEXT("CreateAuxBusNode: Could not find language for Aux Bus %s (%" PRIu32 ")"),
+			*InAuxBusCookedData.DebugName.ToString(), InAuxBusCookedData.AuxBusId);
 		return nullptr;
 	}
 
@@ -603,7 +604,8 @@ FWwiseLoadedEventPtr FWwiseResourceLoaderImpl::CreateEventNode(
 	const auto* LanguageKey = GetLanguageMapKey(InEventCookedData.EventLanguageMap, InLanguageOverride, InEventCookedData.DebugName);
 	if (UNLIKELY(!LanguageKey))
 	{
-		UE_LOG(LogWwiseResourceLoader, Error, TEXT("CreateEventNode: Could not find language for Event %s"), *InEventCookedData.DebugName.ToString());
+		UE_LOG(LogWwiseResourceLoader, Error, TEXT("CreateEventNode: Could not find language for Event %s (%" PRIu32 ")"),
+			*InEventCookedData.DebugName.ToString(), InEventCookedData.EventId);
 		return nullptr;
 	}
 
@@ -956,7 +958,8 @@ FWwiseLoadedShareSetPtr FWwiseResourceLoaderImpl::CreateShareSetNode(
 	const auto* LanguageKey = GetLanguageMapKey(InShareSetCookedData.ShareSetLanguageMap, InLanguageOverride, InShareSetCookedData.DebugName);
 	if (UNLIKELY(!LanguageKey))
 	{
-		UE_LOG(LogWwiseResourceLoader, Error, TEXT("CreateShareSetNode: Could not find language for ShareSet %s"), *InShareSetCookedData.DebugName.ToString());
+		UE_LOG(LogWwiseResourceLoader, Error, TEXT("CreateShareSetNode: Could not find language for ShareSet %s (%" PRIu32 ")"),
+			*InShareSetCookedData.DebugName.ToString(), InShareSetCookedData.ShareSetId);
 		return nullptr;
 	}
 
@@ -1045,7 +1048,8 @@ FWwiseLoadedSoundBankPtr FWwiseResourceLoaderImpl::CreateSoundBankNode(
 	const auto* LanguageKey = GetLanguageMapKey(InSoundBankCookedData.SoundBankLanguageMap, InLanguageOverride, InSoundBankCookedData.DebugName);
 	if (UNLIKELY(!LanguageKey))
 	{
-		UE_LOG(LogWwiseResourceLoader, Error, TEXT("CreateSoundBankNode: Could not find language for SoundBank %s"), *InSoundBankCookedData.DebugName.ToString());
+		UE_LOG(LogWwiseResourceLoader, Error, TEXT("CreateSoundBankNode: Could not find language for SoundBank %s (%" PRIu32 ")"),
+			*InSoundBankCookedData.DebugName.ToString(), InSoundBankCookedData.SoundBankId);
 		return nullptr;
 	}
 

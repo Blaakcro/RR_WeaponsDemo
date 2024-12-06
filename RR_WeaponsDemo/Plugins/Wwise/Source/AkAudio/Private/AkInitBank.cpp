@@ -26,6 +26,11 @@ Copyright (c) 2024 Audiokinetic Inc.
 #include "Wwise/WwiseResourceCooker.h"
 #endif
 
+#if WITH_EDITORONLY_DATA && UE_5_5_OR_LATER
+#include "UObject/ObjectSaveContext.h"
+#include "Serialization/CompactBinaryWriter.h"
+#endif
+
 #if WITH_EDITORONLY_DATA
 void UAkInitBank::CookAdditionalFilesOverride(const TCHAR* PackageFilename, const ITargetPlatform* TargetPlatform,
                                               TFunctionRef<void(const TCHAR* Filename, void* Data, int64 Size)> WriteAdditionalFile)
@@ -102,6 +107,42 @@ void UAkInitBank::UnloadInitBank(bool bAsync)
 		}
 	}
 }
+
+#if WITH_EDITORONLY_DATA && UE_5_5_OR_LATER
+UE_COOK_DEPENDENCY_FUNCTION(HashWwiseInitBankDependenciesForCook, UAkAudioType::HashDependenciesForCook);
+
+void UAkInitBank::PreSave(FObjectPreSaveContext SaveContext)
+{
+	ON_SCOPE_EXIT
+	{
+		Super::PreSave(SaveContext);
+	};
+
+	if (!SaveContext.IsCooking())
+	{
+		return;
+	}
+
+	auto* ResourceCooker = FWwiseResourceCooker::GetForPlatform(SaveContext.GetTargetPlatform());
+	if (UNLIKELY(!ResourceCooker))
+	{
+		return;
+	}
+
+	FWwiseInitBankCookedData CookedDataToArchive;
+	ResourceCooker->PrepareCookedData(CookedDataToArchive, FWwiseObjectInfo::DefaultInitBank);
+	FillMetadata(ResourceCooker->GetProjectDatabase());
+
+	FCbWriter Writer;
+	Writer.BeginObject();
+	CookedDataToArchive.PreSave(SaveContext, Writer);
+	Writer.EndObject();
+	
+	SaveContext.AddCookBuildDependency(
+		UE::Cook::FCookDependency::Function(
+			UE_COOK_DEPENDENCY_FUNCTION_CALL(HashWwiseInitBankDependenciesForCook), Writer.Save()));
+}
+#endif
 
 #if WITH_EDITORONLY_DATA
 void UAkInitBank::PrepareCookedData()

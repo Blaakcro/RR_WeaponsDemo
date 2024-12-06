@@ -23,6 +23,10 @@ Copyright (c) 2024 Audiokinetic Inc.
 #include "Wwise/Info/WwiseObjectInfo.h"
 #include "Wwise/WwiseResourceLoaderFuture.h"
 #include "WwiseUnrealDefines.h"
+#if WITH_EDITORONLY_DATA && UE_5_5_OR_LATER
+#include "Cooker/CookDependency.h"
+#include "Serialization/CompactBinary.h"
+#endif
 #if UE_5_4_OR_LATER
 #include "UObject/AssetRegistryTagsContext.h"
 #endif
@@ -128,6 +132,10 @@ public:
 	virtual void GetAssetRegistryTags(TArray<FAssetRegistryTag>& OutTags) const override;
 #endif // UE_5_4_OR_LATER
 #endif // WITH_EDITOR
+
+#if WITH_EDITORONLY_DATA && UE_5_5_OR_LATER
+	static void HashDependenciesForCook(FCbFieldViewIterator Args, UE::Cook::FCookDependencyContext& Context);
+#endif
 
 protected:
 	FWwiseResourceUnloadFuture ResourceUnload;

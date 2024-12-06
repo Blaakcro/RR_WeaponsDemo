@@ -51,7 +51,7 @@ namespace ReverbEstimation
 	{
 		// constants for the mean and standard deviation of the acoustic texture indices 0,1,2,3
 		const float meanX = 1.5f;
-		const float sdX = 1.11803399;
+		const float sdX = 1.11803399f;
 
 		const int N = 4;
 		float meanY = (texture.fAbsorptionLow + texture.fAbsorptionMidLow + texture.fAbsorptionMidHigh + texture.fAbsorptionHigh) / (float)N;

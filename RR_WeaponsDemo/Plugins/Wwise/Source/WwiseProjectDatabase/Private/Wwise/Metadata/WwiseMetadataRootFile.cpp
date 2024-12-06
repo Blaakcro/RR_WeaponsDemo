@@ -106,6 +106,7 @@ protected:
 
 WwiseMetadataSharedRootFilePtr FWwiseMetadataRootFile::LoadFile(FString&& File, const FString& FilePath)
 {
+	SCOPED_WWISEPROJECTDATABASE_EVENT_F_2(TEXT("FWwiseMetadataRootFile::LoadFile: "), *FilePath);
 	UE_LOG(LogWwiseProjectDatabase, Verbose, TEXT("Parsing file in: %s"), *FilePath);
 
 	auto JsonReader = TJsonReaderFactory<>::Create(MoveTemp(File));
@@ -160,7 +161,8 @@ WwiseMetadataFileMap FWwiseMetadataRootFile::LoadFiles(const TArray<FString>& Fi
 	{
 		auto& Task { Tasks[Num] };
 		Task.StartSynchronousTask();
-	}, EParallelForFlags::BackgroundPriority);
+		// don't do this at background priority because it blocks the main thread
+	}, EParallelForFlags::None);
 
 	for (auto& Task : Tasks)
 	{

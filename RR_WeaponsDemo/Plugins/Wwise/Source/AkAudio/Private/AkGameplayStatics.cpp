@@ -45,6 +45,7 @@ Copyright (c) 2024 Audiokinetic Inc.
 
 
 bool UAkGameplayStatics::m_bSoundEngineRecording = false;
+FAkOutdoorsRoomParameters UAkGameplayStatics::m_CurrentOutDoorsRoomParameters = FAkOutdoorsRoomParameters();
 
 /*-----------------------------------------------------------------------------
 	UAkGameplayStatics.
@@ -56,21 +57,42 @@ UAkGameplayStatics::UAkGameplayStatics(const class FObjectInitializer& ObjectIni
 	// Property initialization
 }
 
-class UAkComponent * UAkGameplayStatics::GetAkComponent( class USceneComponent* AttachToComponent, bool& ComponentCreated, FName AttachPointName, FVector Location, EAttachLocation::Type LocationType )
+class UAkComponent * UAkGameplayStatics::GetAkComponent(USceneComponent* AttachToComponent, bool& ComponentCreated, FName AttachPointName, FVector Location, EAttachLocation::
+	Type LocationType)
 {
-	if ( AttachToComponent == NULL )
+	if ( !AttachToComponent )
 	{
 		UE_LOG(LogAkAudio, Warning, TEXT("UAkGameplayStatics::GetAkComponent: NULL AttachToComponent specified!"));
-		return NULL;
+		return nullptr;
 	}
 
 	FAkAudioDevice * AkAudioDevice = FAkAudioDevice::Get();
 	if( AkAudioDevice )
 	{
-		return AkAudioDevice->GetAkComponent( AttachToComponent, AttachPointName, &Location, LocationType, ComponentCreated );
+		return AkAudioDevice->GetAkComponent(AttachToComponent, AttachPointName, &Location, LocationType,
+			ComponentCreated);
 	}
 
-	return NULL;
+	return nullptr;
+}
+
+UAkComponent* UAkGameplayStatics::GetOrCreateAkComponent(USceneComponent* AttachToComponent, bool& ComponentCreated,
+	FName AttachPointName)
+{
+	if ( !AttachToComponent )
+	{
+		UE_LOG(LogAkAudio, Warning, TEXT("UAkGameplayStatics::GetAkComponent: NULL AttachToComponent specified!"));
+		return nullptr;
+	}
+
+	FAkAudioDevice * AkAudioDevice = FAkAudioDevice::Get();
+	if( AkAudioDevice )
+	{
+		return AkAudioDevice->GetAkComponent(AttachToComponent, AttachPointName, nullptr, EAttachLocation::KeepRelativeOffset,
+			ComponentCreated);
+	}
+
+	return nullptr;
 }
 
 bool UAkGameplayStatics::IsEditor()
@@ -480,6 +502,90 @@ void UAkGameplayStatics::SetPortalToPortalObstruction(UAkPortalComponent* Portal
 	{
 		AudioDevice->SetPortalToPortalObstruction(PortalComponent0, PortalComponent1, ObstructionValue);
 	}
+}
+
+FAkOutdoorsRoomParameters UAkGameplayStatics::GetCurrentOutdoorsRoomParameters()
+{
+	return m_CurrentOutDoorsRoomParameters;
+}
+
+void UAkGameplayStatics::SetOutdoorsRoomParameters(FAkOutdoorsRoomParameters InOutdoorsRoomParameters)
+{
+	m_CurrentOutDoorsRoomParameters = InOutdoorsRoomParameters;
+
+	AkRoomParams RoomParams = AkRoomParams();
+	AkUInt32 AuxBusID = AK_INVALID_AUX_ID;
+
+	if (m_CurrentOutDoorsRoomParameters.ReverbAuxBus)
+	{
+		AuxBusID = m_CurrentOutDoorsRoomParameters.ReverbAuxBus->GetShortID();
+		if (AuxBusID == AK_INVALID_AUX_ID)
+		{
+			UE_LOG(LogAkAudio, Warning, TEXT("UAkGameplayStatics::SetOutdoorsRoomParameters: Returning invalid auxBusID for the AuxBus passed in parameters."));
+		}
+	}
+	RoomParams.ReverbAuxBus = AuxBusID;
+
+	RoomParams.ReverbLevel = m_CurrentOutDoorsRoomParameters.ReverbLevel;
+	RoomParams.TransmissionLoss = m_CurrentOutDoorsRoomParameters.TransmissionLoss;
+	RoomParams.RoomGameObj_AuxSendLevelToSelf = m_CurrentOutDoorsRoomParameters.AuxSendLevel;
+	RoomParams.RoomGameObj_KeepRegistered = m_CurrentOutDoorsRoomParameters.KeepRegistered;
+	RoomParams.RoomPriority = 1;
+
+	auto* SpatialAudio = IWwiseSpatialAudioAPI::Get();
+	if (SpatialAudio)
+	{
+		SpatialAudio->SetRoom(
+			AK::SpatialAudio::kOutdoorRoomID,
+			RoomParams,
+			"Outdoors"
+		);
+	}
+}
+
+void UAkGameplayStatics::ResetOutdoorsRoomParams()
+{
+	auto* SpatialAudio = IWwiseSpatialAudioAPI::Get();
+	if (SpatialAudio)
+	{
+		AKRESULT result = SpatialAudio->RemoveRoom(AK::SpatialAudio::kOutdoorRoomID);
+		if (result == AK_Success)
+		{
+			m_CurrentOutDoorsRoomParameters = FAkOutdoorsRoomParameters();
+		}
+	}
+}
+
+int32 UAkGameplayStatics::PostEventOutdoors(UAkAudioEvent* AkEvent, int32 CallbackMask, const FOnAkPostEventCallback& PostEventCallback)
+{
+	if (UNLIKELY(!IsValid(AkEvent)))
+	{
+		UE_LOG(LogAkAudio, Warning, TEXT("UAkGameplayStatics::PostEventOutdoors: Failed to post invalid AkAudioEvent."))
+			return AK_INVALID_PLAYING_ID;
+	}
+
+	// before posting an event to the outdoors room, we need to make sure the room Game Object ID exists
+	// We need to set AkRoomParams.RoomGameObj_KeepRegistered to true
+	if (!m_CurrentOutDoorsRoomParameters.KeepRegistered)
+	{
+		m_CurrentOutDoorsRoomParameters.KeepRegistered = true;
+		SetOutdoorsRoomParameters(m_CurrentOutDoorsRoomParameters);
+	}
+
+	return AkEvent->PostOnGameObjectID(AK::SpatialAudio::kOutdoorRoomID.AsGameObjectID(), &PostEventCallback, nullptr, nullptr,
+		AkCallbackTypeHelpers::GetCallbackMaskFromBlueprintMask(CallbackMask), nullptr);
+}
+
+void UAkGameplayStatics::StopOutdoors()
+{
+	FAkAudioDevice* AudioDevice = FAkAudioDevice::Get();
+	if (UNLIKELY(!AudioDevice))
+	{
+		UE_LOG(LogAkAudio, Warning, TEXT("UAkGameplayStatics::StopActor: Could not retrieve audio device."));
+		return;
+	}
+
+	AudioDevice->StopGameObjectID(AK::SpatialAudio::kOutdoorRoomID.AsGameObjectID());
 }
 
 void UAkGameplayStatics::SetOutputBusVolume(float BusVolume, class AActor* Actor)

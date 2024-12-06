@@ -35,5 +35,6 @@ public:
 	virtual void FillInfo(const FWwiseAnyRef& CurrentWwiseRef) override;
 	virtual bool ObjectIsInSoundBanks() override;
 	virtual FName GetWwiseGroupName() override;
+	virtual EWwiseGroupType GetGroupType() const override { return EWwiseGroupType::Switch; }
 #endif
 };

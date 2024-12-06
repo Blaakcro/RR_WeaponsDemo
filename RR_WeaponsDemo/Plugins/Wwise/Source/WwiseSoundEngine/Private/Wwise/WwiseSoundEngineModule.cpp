@@ -49,7 +49,8 @@ IWwiseSoundEngineVersionModule* IWwiseSoundEngineModule::VersionInterface = null
 
 void FWwiseSoundEngineModule::StartupModule()
 {
-	UE_LOG(LogWwiseSoundEngine, Display, TEXT("Loading Wwise Sound Engine version %s"), TEXT(AK_WWISE_SOUNDENGINE_VERSION));
+	UE_LOG(LogWwiseSoundEngine, Display, TEXT("Loading Wwise SoundEngine %s (Integration %s)"),
+		TEXT(AK_WWISE_SOUNDENGINE_VERSION), TEXT(WWISE_INTEGRATION_VERSION));
 
 	VersionInterface = new WWISE_SOUNDENGINE_VERSION_CLASS;
 

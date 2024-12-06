@@ -500,8 +500,9 @@ void UAkGeometryComponent::ConvertStaticMesh(UStaticMeshComponent* StaticMeshCom
 
 			if (!surfaceOverride.bEnableOcclusionOverride)
 				physMatOcclusion = physicalMaterial;
-		}
 
+			GeometryData.MaterialToSurfaceIndex.Add(Material, PolygonsIndex);
+		}
 
 		if (surfaceOverride.AcousticTexture)
 		{
@@ -987,6 +988,158 @@ void UAkGeometryComponent::UpdateGeometry()
 	}
 }
 
+bool UAkGeometryComponent::GetAcousticPropertiesOverride(UMaterialInterface* InMaterialInterface, FAkGeometrySurfaceOverride& OutAcousticPropertiesOverride)
+{
+	bool bOutIsValid = false;
+
+	if (MeshType == AkMeshType::CollisionMesh)
+	{
+		OutAcousticPropertiesOverride = CollisionMeshSurfaceOverride;
+		bOutIsValid = true;
+	}
+	else
+	{
+		auto* pFound = StaticMeshSurfaceOverride.Find(InMaterialInterface);
+		if (pFound)
+		{
+			OutAcousticPropertiesOverride = *pFound;
+			bOutIsValid = true;
+		}
+		else
+		{
+			OutAcousticPropertiesOverride = FAkGeometrySurfaceOverride();
+			bOutIsValid = false;
+		}
+	}
+
+	return bOutIsValid;
+}
+
+AkUInt32 GetTextureID(UAkAcousticTexture* InAcousticTexture)
+{
+	if (InAcousticTexture != nullptr)
+	{
+		return InAcousticTexture->GetShortID();
+	}
+	else
+	{
+		return AK_INVALID_UNIQUE_ID;
+	}
+}
+
+bool UAkGeometryComponent::SetAcousticPropertiesOverride(UMaterialInterface* InMaterialInterface, FAkGeometrySurfaceOverride InAcousticPropertiesOverride, FAkGeometrySurfaceOverride& OutAcousticPropertiesOverride)
+{
+	return _SetAcousticPropertiesOverride(InMaterialInterface, InAcousticPropertiesOverride, OutAcousticPropertiesOverride);
+}
+
+bool UAkGeometryComponent::SetAcousticTextureOverride(UMaterialInterface* InMaterialInterface, UAkAcousticTexture* InAcousticTexture, FAkGeometrySurfaceOverride& OutAcousticPropertiesOverride)
+{
+	FAkGeometrySurfaceOverride CurrentAcousticSurfaceOverride;
+	bool bSucceeded = GetAcousticPropertiesOverride(InMaterialInterface, CurrentAcousticSurfaceOverride);
+	if (!bSucceeded) return false;
+
+	FAkGeometrySurfaceOverride AcousticSurfaceOverride;
+	AcousticSurfaceOverride.AcousticTexture = InAcousticTexture;
+	AcousticSurfaceOverride.bEnableOcclusionOverride = CurrentAcousticSurfaceOverride.bEnableOcclusionOverride;
+	AcousticSurfaceOverride.OcclusionValue = CurrentAcousticSurfaceOverride.OcclusionValue;
+
+	return _SetAcousticPropertiesOverride(InMaterialInterface, AcousticSurfaceOverride, OutAcousticPropertiesOverride);
+}
+
+bool UAkGeometryComponent::SetTransmissionLossOverride(UMaterialInterface* InMaterialInterface, float InTransmissionLoss, bool bInEnableTransmissionLossOverride, FAkGeometrySurfaceOverride& OutAcousticPropertiesOverride)
+{
+	FAkGeometrySurfaceOverride CurrentAcousticSurfaceOverride;
+	bool bSucceeded = GetAcousticPropertiesOverride(InMaterialInterface, CurrentAcousticSurfaceOverride);
+	if (!bSucceeded) return false;
+
+	FAkGeometrySurfaceOverride AcousticSurfaceOverride;
+	AcousticSurfaceOverride.AcousticTexture = CurrentAcousticSurfaceOverride.AcousticTexture;
+	AcousticSurfaceOverride.bEnableOcclusionOverride = bInEnableTransmissionLossOverride;
+	AcousticSurfaceOverride.OcclusionValue = InTransmissionLoss;
+
+	return _SetAcousticPropertiesOverride(InMaterialInterface, AcousticSurfaceOverride, OutAcousticPropertiesOverride);
+}
+
+bool UAkGeometryComponent::SetEnableTransmissionLossOverride(UMaterialInterface* InMaterialInterface, bool bInEnableTransmissionLossOverride, FAkGeometrySurfaceOverride& OutAcousticPropertiesOverride)
+{
+	FAkGeometrySurfaceOverride CurrentAcousticSurfaceOverride;
+	bool bSucceeded = GetAcousticPropertiesOverride(InMaterialInterface, CurrentAcousticSurfaceOverride);
+	if (!bSucceeded) return false;
+
+	FAkGeometrySurfaceOverride AcousticSurfaceOverride;
+	AcousticSurfaceOverride.AcousticTexture = CurrentAcousticSurfaceOverride.AcousticTexture;
+	AcousticSurfaceOverride.bEnableOcclusionOverride = bInEnableTransmissionLossOverride;
+	AcousticSurfaceOverride.OcclusionValue = CurrentAcousticSurfaceOverride.OcclusionValue;
+
+	return _SetAcousticPropertiesOverride(InMaterialInterface, AcousticSurfaceOverride, OutAcousticPropertiesOverride);
+}
+
+bool UAkGeometryComponent::_SetAcousticPropertiesOverride(UMaterialInterface* InMaterialInterface, FAkGeometrySurfaceOverride InAcousticPropertiesOverride, FAkGeometrySurfaceOverride& OutAcousticPropertiesOverride)
+{
+	bool bOutIsValid = false;
+
+	if (MeshType == AkMeshType::CollisionMesh)
+	{
+		if ((CollisionMeshSurfaceOverride.bEnableOcclusionOverride != InAcousticPropertiesOverride.bEnableOcclusionOverride) ||
+			(CollisionMeshSurfaceOverride.AcousticTexture != InAcousticPropertiesOverride.AcousticTexture) ||
+			(CollisionMeshSurfaceOverride.OcclusionValue != InAcousticPropertiesOverride.OcclusionValue))
+		{
+			CollisionMeshSurfaceOverride = InAcousticPropertiesOverride;
+			OnCollisionAcousticPropertiesOverrideChanged();
+		}
+
+		OutAcousticPropertiesOverride = CollisionMeshSurfaceOverride;
+		bOutIsValid = true;
+	}
+	else
+	{
+		auto* pAcousticPropertiesOverride = StaticMeshSurfaceOverride.Find(InMaterialInterface);
+		if (pAcousticPropertiesOverride)
+		{
+			if ((pAcousticPropertiesOverride->bEnableOcclusionOverride != InAcousticPropertiesOverride.bEnableOcclusionOverride) ||
+				(pAcousticPropertiesOverride->AcousticTexture != InAcousticPropertiesOverride.AcousticTexture) ||
+				(pAcousticPropertiesOverride->OcclusionValue != InAcousticPropertiesOverride.OcclusionValue))
+			{
+				*pAcousticPropertiesOverride = InAcousticPropertiesOverride;
+				OnStaticMeshAcousticPropertiesOverrideChanged(InMaterialInterface);
+			}
+
+			OutAcousticPropertiesOverride = *pAcousticPropertiesOverride;
+			bOutIsValid = true;
+		}
+		else
+		{
+			OutAcousticPropertiesOverride = FAkGeometrySurfaceOverride();
+			bOutIsValid = false;
+		}
+	}
+
+	return bOutIsValid;
+}
+
+void UAkGeometryComponent::SetEnableDiffraction(bool bInEnableDiffraction, bool bInEnableDiffractionOnBoundaryEdges)
+{
+	bool bDiffractionChanged = false;
+	bool bBoundaryEdgeDiffractionChanged = false;
+
+	if (bEnableDiffraction != bInEnableDiffraction)
+	{
+		bEnableDiffraction = bInEnableDiffraction;
+		bDiffractionChanged = true;
+	}
+
+	if (bEnableDiffractionOnBoundaryEdges != bInEnableDiffractionOnBoundaryEdges)
+	{
+		bEnableDiffractionOnBoundaryEdges = bInEnableDiffractionOnBoundaryEdges;
+		bBoundaryEdgeDiffractionChanged = true;
+	}
+
+	if (bDiffractionChanged || (bEnableDiffraction && bBoundaryEdgeDiffractionChanged))
+	{
+		bGeometryNeedsUpdate = true;
+	}
+}
+
 void UAkGeometryComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	Super::EndPlay(EndPlayReason);
@@ -1091,6 +1244,11 @@ void UAkGeometryComponent::TickComponent(float DeltaTime, enum ELevelTick TickTy
 			OnRefreshDetails.ExecuteIfBound();
 			bMeshMaterialChanged = false;
 		}
+	}
+	if (bGeometryNeedsUpdate)
+	{
+		SendGeometry();
+		bGeometryNeedsUpdate = false;
 	}
 }
 #endif
@@ -1297,3 +1455,120 @@ void UAkGeometryComponent::RegisterAllTextureParamCallbacks()
 	}
 }
 #endif
+
+void UAkGeometryComponent::OnCollisionAcousticPropertiesOverrideChanged()
+{
+	if (MeshType != AkMeshType::CollisionMesh) return;
+	if (GeometryData.Surfaces.Num() == 0) return;
+
+	// override the surface acoustic texture and transmission loss values
+	if (CollisionMeshSurfaceOverride.AcousticTexture != nullptr)
+	{
+		GeometryData.Surfaces[0].Texture = GetTextureID(CollisionMeshSurfaceOverride.AcousticTexture);
+		bGeometryNeedsUpdate = true;
+	}
+	if (CollisionMeshSurfaceOverride.bEnableOcclusionOverride)
+	{
+		GeometryData.Surfaces[0].Occlusion = CollisionMeshSurfaceOverride.OcclusionValue;
+		bGeometryNeedsUpdate = true;
+	}
+
+	// if the acoustic texture override is null or if transmission loss override is disabled
+	// get the associated acoustic texture and/or transmission loss value from the physical material of the mesh
+	if (CollisionMeshSurfaceOverride.AcousticTexture == nullptr ||
+		!CollisionMeshSurfaceOverride.bEnableOcclusionOverride)
+	{
+		const UAkSettings* AkSettings = GetDefault<UAkSettings>();
+		if (AkSettings == nullptr) return;
+
+		UBodySetup* bodySetup = Parent->GetBodySetup();
+		if (!(bodySetup && IsValid(bodySetup)))
+			return;
+
+		UPhysicalMaterial* physicalMaterial = bodySetup->GetPhysMaterial();
+
+		if (CollisionMeshSurfaceOverride.AcousticTexture == nullptr)
+		{
+			UAkAcousticTexture* AssociatedAcousticTexture;
+			if (AkSettings->GetAssociatedAcousticTexture(physicalMaterial, AssociatedAcousticTexture))
+			{
+				GeometryData.Surfaces[0].Texture = GetTextureID(AssociatedAcousticTexture);
+				bGeometryNeedsUpdate = true;
+			}
+		}
+
+		if (!CollisionMeshSurfaceOverride.bEnableOcclusionOverride)
+		{
+			float AssociatedTransmissionLossValue;
+			if (AkSettings->GetAssociatedOcclusionValue(physicalMaterial, AssociatedTransmissionLossValue))
+			{
+				GeometryData.Surfaces[0].Occlusion = AssociatedTransmissionLossValue;
+				bGeometryNeedsUpdate = true;
+			}
+		}
+	}
+}
+
+void UAkGeometryComponent::OnStaticMeshAcousticPropertiesOverrideChanged(UMaterialInterface* InMaterialInterface)
+{
+	if (MeshType != AkMeshType::StaticMesh) return;
+	if (GeometryData.Surfaces.Num() == 0) return;
+
+	if (InMaterialInterface == nullptr) return;
+
+	auto* pSurfaceOverride = StaticMeshSurfaceOverride.Find(InMaterialInterface);
+	if (pSurfaceOverride == nullptr) return;
+
+	// get the index of the surface to override
+	int32* pFound = GeometryData.MaterialToSurfaceIndex.Find(InMaterialInterface);
+	if (pFound == nullptr) return;
+
+	int32 indexOfSurfaceToOverride = *pFound;
+	if (indexOfSurfaceToOverride < 0 || indexOfSurfaceToOverride >= GeometryData.Surfaces.Num())
+	{
+		return;
+	}
+
+	// override the surface acoustic texture and transmission loss values
+	if (pSurfaceOverride->AcousticTexture != nullptr)
+	{
+		GeometryData.Surfaces[indexOfSurfaceToOverride].Texture = GetTextureID(pSurfaceOverride->AcousticTexture);
+		bGeometryNeedsUpdate = true;
+	}
+	if (pSurfaceOverride->bEnableOcclusionOverride)
+	{
+		GeometryData.Surfaces[indexOfSurfaceToOverride].Occlusion = pSurfaceOverride->OcclusionValue;
+		bGeometryNeedsUpdate = true;
+	}
+
+	// if the acoustic texture override is null or if transmission loss override is disabled
+	// get the associated acoustic texture and/or transmission loss value from the physical material of the mesh
+	if (pSurfaceOverride->AcousticTexture == nullptr ||
+		!pSurfaceOverride->bEnableOcclusionOverride)
+	{
+		const UAkSettings* AkSettings = GetDefault<UAkSettings>();
+		if (AkSettings == nullptr) return;
+
+		UPhysicalMaterial* physicalMaterial = InMaterialInterface->GetPhysicalMaterial();
+
+		if (pSurfaceOverride->AcousticTexture == nullptr)
+		{
+			UAkAcousticTexture* AssociatedAcousticTexture;
+			if (AkSettings->GetAssociatedAcousticTexture(physicalMaterial, AssociatedAcousticTexture))
+			{
+				GeometryData.Surfaces[indexOfSurfaceToOverride].Texture = GetTextureID(AssociatedAcousticTexture);
+				bGeometryNeedsUpdate = true;
+			}
+		}
+
+		if (!pSurfaceOverride->bEnableOcclusionOverride)
+		{
+			float AssociatedTransmissionLossValue;
+			if (AkSettings->GetAssociatedOcclusionValue(physicalMaterial, AssociatedTransmissionLossValue))
+			{
+				GeometryData.Surfaces[indexOfSurfaceToOverride].Occlusion = AssociatedTransmissionLossValue;
+				bGeometryNeedsUpdate = true;
+			}
+		}
+	}
+}

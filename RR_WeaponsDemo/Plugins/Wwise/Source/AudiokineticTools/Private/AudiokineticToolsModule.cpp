@@ -32,6 +32,7 @@ Copyright (c) 2024 Audiokinetic Inc.
 #include "AkSettings.h"
 #include "AkSettingsPerUser.h"
 #include "AkSurfaceReflectorSetComponent.h"
+#include "AkSpatialAudioVolume.h"
 #include "AkReverbZone.h"
 #include "WwiseUnrealDefines.h"
 #include "AssetManagement/AkAssetDatabase.h"
@@ -48,6 +49,7 @@ Copyright (c) 2024 Audiokinetic Inc.
 #include "DetailsCustomization/AkSurfaceReflectorSetDetailsCustomization.h"
 #include "DetailsCustomization/AkSettingsDetailsCustomization.h"
 #include "DetailsCustomization/AkReverbZoneDetailsCustomization.h"
+#include "DetailsCustomization/AkSpatialAudioVolumeActorDetailsCustomization.h"
 #include "LevelEditor.h"
 #include "Editor/UnrealEdEngine.h"
 #include "Factories/ActorFactoryAkAmbientSound.h"
@@ -634,6 +636,7 @@ void FAudiokineticToolsModule::StartupModule()
 	PropertyModule.RegisterCustomClassLayout(UAkGeometryComponent::StaticClass()->GetFName(), FOnGetDetailCustomizationInstance::CreateStatic(&FAkGeometryComponentDetailsCustomization::MakeInstance));
 	PropertyModule.RegisterCustomClassLayout(UAkSettings::StaticClass()->GetFName(), FOnGetDetailCustomizationInstance::CreateStatic(&FAkSettingsDetailsCustomization::MakeInstance));
 	PropertyModule.RegisterCustomClassLayout(AAkReverbZone::StaticClass()->GetFName(), FOnGetDetailCustomizationInstance::CreateStatic(&FAkReverbZoneDetailsCustomization::MakeInstance));
+	PropertyModule.RegisterCustomClassLayout(AAkSpatialAudioVolume::StaticClass()->GetFName(), FOnGetDetailCustomizationInstance::CreateStatic(&FAkSpatialAudioVolumeActorDetailsCustomization::MakeInstance));
 
 	if (!IWwiseProjectDatabaseModule::ShouldInitializeProjectDatabase())
 	{

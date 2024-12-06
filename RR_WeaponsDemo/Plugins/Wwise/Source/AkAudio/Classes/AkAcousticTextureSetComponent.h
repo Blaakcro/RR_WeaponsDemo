@@ -64,6 +64,7 @@ protected:
 
 	FAkReverbDescriptor* ReverbDescriptor = nullptr;
 	bool DampingEstimationNeedsUpdate = false;
+	bool bGeometryNeedsUpdate = false;
 
 	virtual bool ShouldSendGeometry() const;
 	/* Add or update a geometry in Spatial Audio. It is necessary to create at least one geometry instance

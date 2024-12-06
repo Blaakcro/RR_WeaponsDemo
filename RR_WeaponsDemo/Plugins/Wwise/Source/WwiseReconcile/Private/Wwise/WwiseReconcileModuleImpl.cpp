@@ -20,7 +20,7 @@ Copyright (c) 2024 Audiokinetic Inc.
 #include "Wwise/Stats/Reconcile.h"
 #include "Wwise/WwiseReconcileImpl.h"
 
-IMPLEMENT_MODULE(FWwiseReconcileModule, WwiseReconcileModule)
+IMPLEMENT_MODULE(FWwiseReconcileModule, WwiseReconcile)
 
 IWwiseReconcile* FWwiseReconcileModule::GetReconcile()
 {

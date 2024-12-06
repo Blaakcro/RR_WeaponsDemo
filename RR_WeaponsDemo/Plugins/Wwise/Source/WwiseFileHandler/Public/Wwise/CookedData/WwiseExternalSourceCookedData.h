@@ -17,6 +17,8 @@ Copyright (c) 2024 Audiokinetic Inc.
 
 #pragma once
 
+#include "WwiseUnrealDefines.h"
+
 #include "WwiseExternalSourceCookedData.generated.h"
 
 USTRUCT(BlueprintType)
@@ -41,6 +43,9 @@ struct WWISEFILEHANDLER_API FWwiseExternalSourceCookedData
 	void Serialize(FArchive& Ar);
 
 	FString GetDebugString() const;
+#if WITH_EDITORONLY_DATA && UE_5_5_OR_LATER
+	void PreSave(FObjectPreSaveContext& SaveContext, FCbWriter& Writer) const;
+#endif
 };
 
 inline uint32 GetTypeHash(const FWwiseExternalSourceCookedData& InCookedData)

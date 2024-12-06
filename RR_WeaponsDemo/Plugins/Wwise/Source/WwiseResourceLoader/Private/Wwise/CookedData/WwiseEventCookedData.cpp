@@ -21,6 +21,10 @@ Copyright (c) 2024 Audiokinetic Inc.
 
 #include <inttypes.h>
 
+#if WITH_EDITORONLY_DATA && UE_5_5_OR_LATER
+#include "Serialization/CompactBinaryWriter.h"
+#endif
+
 FWwiseEventCookedData::FWwiseEventCookedData():
 	EventId(0),
 	SoundBanks(),
@@ -46,6 +50,41 @@ void FWwiseEventCookedData::Serialize(FArchive& Ar)
 	}
 }
 
+
+#if WITH_EDITORONLY_DATA && UE_5_5_OR_LATER
+void FWwiseEventCookedData::PreSave(FObjectPreSaveContext& SaveContext, FCbWriter& Writer) const
+{
+	Writer << "Event";
+	Writer.BeginObject();
+
+	Writer << "Id" << EventId;
+
+	Writer << "SBs";
+	Writer.BeginArray();
+	for (auto& SoundBank : SoundBanks)
+	{
+		SoundBank.PreSave(SaveContext, Writer);
+	}
+	Writer.EndArray();
+
+	Writer << "Ms";
+	Writer.BeginArray();
+	for (auto& MediaItem : Media)
+	{
+		MediaItem.PreSave(SaveContext, Writer);
+	}
+	Writer.EndArray();
+
+	Writer << "Ls";
+	Writer.BeginArray();
+	for (auto& Leaf : SwitchContainerLeaves)
+	{
+		Leaf.PreSave(SaveContext, Writer);
+	}
+	Writer.EndArray();
+	Writer.EndObject();
+}
+#endif
 FString FWwiseEventCookedData::GetDebugString() const
 {
 	bool bFirst = true;

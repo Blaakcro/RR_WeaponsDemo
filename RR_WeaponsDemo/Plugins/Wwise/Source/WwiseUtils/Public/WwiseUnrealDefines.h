@@ -40,6 +40,9 @@ Copyright (c) 2024 Audiokinetic Inc.
 #ifndef UE_5_4_OR_LATER
 #define UE_5_4_OR_LATER   (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 4)
 #endif
+#ifndef UE_5_5_OR_LATER
+#define UE_5_5_OR_LATER   (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 5)
+#endif
 
 // PhysX (deprecated in UE5.0) and Chaos (mandatory in UE5.1) selection
 #if UE_5_1_OR_LATER

@@ -26,6 +26,7 @@ Copyright (c) 2024 Audiokinetic Inc.
 #include "Wwise/Stats/ResourceCooker.h"
 
 #include "Misc/CommandLine.h"
+#include "Wwise/WwiseConcurrencyModuleImpl.h"
 
 IMPLEMENT_MODULE(FWwiseResourceCookerModule, WwiseResourceCooker)
 

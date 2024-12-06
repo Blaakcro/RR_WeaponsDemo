@@ -69,3 +69,9 @@ DECLARE_MEMORY_STAT_EXTERN(TEXT("SoundBank Device"), STAT_WwiseMemorySoundBankDe
 LLM_DECLARE_TAG_API(Audio_Wwise_FileHandler_ExternalSources, WWISEFILEHANDLER_API);
 LLM_DECLARE_TAG_API(Audio_Wwise_FileHandler_Media, WWISEFILEHANDLER_API);
 LLM_DECLARE_TAG_API(Audio_Wwise_FileHandler_SoundBanks, WWISEFILEHANDLER_API);
+
+#if WITH_EDITORONLY_DATA
+DECLARE_MEMORY_STAT_EXTERN(TEXT("Cooking"), STAT_WwiseMemoryCooking, STATGROUP_WwiseMemory, WWISEFILEHANDLER_API);
+#define STAT_WwiseMemoryCooking_FName GET_STATFNAME(STAT_WwiseMemoryCooking)
+LLM_DECLARE_TAG_API(Audio_Wwise_FileHandler_Cooking, WWISEFILEHANDLER_API);
+#endif

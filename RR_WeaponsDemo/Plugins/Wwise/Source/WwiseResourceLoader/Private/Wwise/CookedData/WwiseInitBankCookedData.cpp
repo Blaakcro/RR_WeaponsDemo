@@ -17,6 +17,10 @@ Copyright (c) 2024 Audiokinetic Inc.
 
 #include "Wwise/CookedData/WwiseInitBankCookedData.h"
 
+#if WITH_EDITORONLY_DATA && UE_5_5_OR_LATER
+#include "Serialization/CompactBinaryWriter.h"
+#endif
+
 #include <inttypes.h>
 
 FWwiseInitBankCookedData::FWwiseInitBankCookedData():
@@ -37,6 +41,33 @@ void FWwiseInitBankCookedData::Serialize(FArchive& Ar)
 		Struct->SerializeTaggedProperties(Ar, (uint8*)this, Struct, nullptr);
 	}
 }
+
+#if WITH_EDITORONLY_DATA && UE_5_5_OR_LATER
+void FWwiseInitBankCookedData::PreSave(FObjectPreSaveContext& SaveContext, FCbWriter& Writer) const
+{
+	Writer << "InitBank";
+	Writer.BeginObject();
+
+	Writer << "Id" << SoundBankId;
+
+	Writer << "SBs";
+	Writer.BeginArray();
+	for (auto& SoundBank : SoundBanks)
+	{
+		SoundBank.PreSave(SaveContext, Writer);
+	}
+	Writer.EndArray();
+
+	Writer << "Ms";
+	Writer.BeginArray();
+	for (auto& MediaItem : Media)
+	{
+		MediaItem.PreSave(SaveContext, Writer);
+	}
+	Writer.EndArray();
+	Writer.EndObject();
+}
+#endif
 
 FString FWwiseInitBankCookedData::GetDebugString() const
 {

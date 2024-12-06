@@ -31,6 +31,38 @@ Copyright (c) 2024 Audiokinetic Inc.
 // Make sure AkPlayingID is always 32 bits, or else we're gonna have a bad time.
 static_assert(sizeof(AkPlayingID) == sizeof(int32), "AkPlayingID is not 32 bits anymore. Change return value of PostEvent functions and callback info structures members!");
 
+USTRUCT(BlueprintType)
+struct FAkOutdoorsRoomParameters
+{
+	GENERATED_BODY()
+
+public:
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audiokinetic|Spatial Audio")
+	UAkAuxBus* ReverbAuxBus = nullptr;
+
+	/** Maximum send level to the Wwise Auxiliary Bus associated to this Room */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audiokinetic|Spatial Audio", meta = (ClampMin = "0.0", ClampMax = "1.0"))
+	float ReverbLevel = 1.0f;
+
+	/**
+	* The transmission loss value in wwise, on emitters in the Room, when no audio paths to the
+	* listener are found via sound propagation in Wwise Spatial Audio. This value can be thought of as
+	* 'thickness', as it relates to how much sound energy is transmitted through the wall. Valid range 0.0f-1.0f.
+	*/
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audiokinetic|Spatial Audio", meta = (ClampMin = "0.0", ClampMax = "1.0"))
+	float TransmissionLoss = 0.0f;
+
+	/**
+	* Send level for sounds that are posted on the room. Valid range: (0.f-1.f).
+	* A value of 0 disables the aux send.
+	*/
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audiokinetic|Spatial Audio", meta = (ClampMin = "0.0", ClampMax = "1.0"))
+	float AuxSendLevel = 0.0f;
+
+	bool KeepRegistered = false;
+};
+
 UCLASS()
 class AKAUDIO_API UAkGameplayStatics : public UBlueprintFunctionLibrary
 {
@@ -40,10 +72,26 @@ public:
 	UAkGameplayStatics(const class FObjectInitializer& ObjectInitializer);
 
 	/** Get an AkComponent attached to and following the specified component. 
+	 * @param AttachToComponent - The parent component to search
+	 * @param ComponentCreated - True if a new component was created
+	 * @param AttachPointName - Optional named point within the AttachComponent to play the sound at.
+	 * @param Location Position the Component is situated at
+	 * @param LocationType KeepRelativeOffset for position relative to AttachToComponent, KeepWorldPosition for global
+	 */
+	UFUNCTION(BlueprintCallable, Category="Audiokinetic|AkComponent",
+		meta=(DeprecatedFunction, DeprecationMessage="Please use GetOrCreateAkComponent instead."))
+	static class UAkComponent* GetAkComponent(USceneComponent* AttachToComponent, bool& ComponentCreated,
+		FName AttachPointName = NAME_None, FVector Location = FVector(ForceInit), EAttachLocation::Type LocationType =
+			EAttachLocation::KeepRelativeOffset);
+
+	/** Get an AkComponent attached to and following the specified component. 
+	 * @param AttachToComponent - The parent component to search
+	 * @param ComponentCreated - True if a new component was created
 	 * @param AttachPointName - Optional named point within the AttachComponent to play the sound at.
 	 */
-	UFUNCTION(BlueprintCallable, Category="Audiokinetic")
-	static class UAkComponent * GetAkComponent( class USceneComponent* AttachToComponent, bool& ComponentCreated, FName AttachPointName = NAME_None, FVector Location = FVector(ForceInit), EAttachLocation::Type LocationType = EAttachLocation::KeepRelativeOffset );
+	UFUNCTION(BlueprintCallable, Category="Audiokinetic|AkComponent")
+	static class UAkComponent* GetOrCreateAkComponent(class USceneComponent* AttachToComponent, bool& ComponentCreated,
+		FName AttachPointName = NAME_None);
 
 	UFUNCTION(BlueprintCallable, Category="Audiokinetic")
 	static bool IsEditor();
@@ -95,7 +143,7 @@ public:
 	 * @param AutoPost - Automatically post the event once the AkComponent is created.
 	 * @param AutoDestroy - Automatically destroy the AkComponent once the event is finished.
 	 */
-	UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category="Audiokinetic", meta=(WorldContext="WorldContextObject", AdvancedDisplay = "6"))
+	UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category="Audiokinetic|AkComponent", meta=(WorldContext="WorldContextObject", AdvancedDisplay = "6"))
 	static class UAkComponent* SpawnAkComponentAtLocation(UObject* WorldContextObject, class UAkAudioEvent* AkEvent, FVector Location, FRotator Orientation, bool AutoPost, const FString& EventName, bool AutoDestroy = true);
 
 	/**
@@ -293,6 +341,45 @@ public:
 	*/
 	UFUNCTION(BlueprintCallable, Category = "Audiokinetic|Spatial Audio")
 	static void SetPortalToPortalObstruction(UAkPortalComponent* PortalComponent0, UAkPortalComponent* PortalComponent1, float ObstructionValue);
+
+
+	/**
+	* Get the current Outdoors Room parameters.
+	*
+	* @return FAkOutdoorsRoomParameters - Structure containing the current parameters of the Outdoors Room.
+	*/
+	UFUNCTION(BlueprintCallable, Category = "Audiokinetic|Spatial Audio")
+	static FAkOutdoorsRoomParameters GetCurrentOutdoorsRoomParameters();
+
+	/**
+	* Set the parameters of the defaut Outdoors Room.
+	*
+	* @param InOutdoorsRoomParameters - Structure containing the new parameters of the Outdoors Room.
+	*/
+	UFUNCTION(BlueprintCallable, Category = "Audiokinetic|Spatial Audio")
+	static void SetOutdoorsRoomParameters(FAkOutdoorsRoomParameters InOutdoorsRoomParameters);
+
+	/**
+	 * Reset the Outdoors Room parameters to their default values.
+	 */
+	UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category = "Audiokinetic|Spatial Audio")
+	static void ResetOutdoorsRoomParams();
+
+	/** Posts a Wwise Event attached to and following the root component of the specified actor.
+	 *
+	 * @param AkEvent - Event to play.
+	 */
+	UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category = "Audiokinetic|Spatial Audio", meta = (AdvancedDisplay = "2", AutoCreateRefTerm = "PostEventCallback"))
+	static int32 PostEventOutdoors(class UAkAudioEvent* AkEvent,
+		UPARAM(meta = (Bitmask, BitmaskEnum = "/Script/AkAudio.EAkCallbackType")) int32 CallbackMask,
+		const FOnAkPostEventCallback& PostEventCallback
+	);
+
+	/**
+	 * Stop all sounds for the outdoors room.
+	 */
+	UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category = "Audiokinetic|Spatial Audio")
+	static void StopOutdoors();
 
 	/**
 	* Set the output bus volume (direct) to be used for the specified game object.
@@ -557,5 +644,9 @@ public:
 	static void SetDistanceProbe(AActor* Listener, AActor* DistanceProbe);
 
 	static bool m_bSoundEngineRecording;
+
+private:
+
+	static FAkOutdoorsRoomParameters m_CurrentOutDoorsRoomParameters;
 
 };

@@ -122,20 +122,77 @@ public:
 	float WeldingThreshold = .0f;
 
 	/** Override the acoustic properties of this mesh per material.*/
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Geometry", DisplayName = "Acoustic Properties Override")
+	UPROPERTY(VisibleAnywhere, Category = "Geometry", DisplayName = "Acoustic Properties Override")
 	TMap<UMaterialInterface*, FAkGeometrySurfaceOverride> StaticMeshSurfaceOverride;
 
 	/** Override the acoustic properties of the collision mesh.*/
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Geometry", DisplayName = "Acoustic Properties Override")
+	UPROPERTY(VisibleAnywhere, Category = "Geometry", DisplayName = "Acoustic Properties Override")
 	FAkGeometrySurfaceOverride CollisionMeshSurfaceOverride;
 
+	/**
+	 * Get the Acoustic Properties overriding this Geometry.
+	 * @param InMaterialInterface - If this Geometry's Mesh Type is set to Static Mesh, provide the Material Interface that the requested Acoustic Properties override. Leave empty if the Mesh Type is set to Simple Collision.
+	 * @param OutAcousticPropertiesOverride - The requested Acoustic Properties Override.
+	 * @return True if OutAcousticPropertiesOverride is valid.
+	**/
+	UFUNCTION(BlueprintCallable, Category = "Audiokinetic|AkGeometry")
+	bool GetAcousticPropertiesOverride(UMaterialInterface* InMaterialInterface, FAkGeometrySurfaceOverride& OutAcousticPropertiesOverride);
+
+	/**
+	 * Set the Acoustic Properties overriding this Geometry.
+	 * @param InMaterialInterface - If this Geometry's Mesh Type is set to Static Mesh, provide the Material Interface to override. Leave empty if the Mesh Type is set to Simple Collision.
+	 * @param InAcousticPropertiesOverride - Structure of Acoustic Properties Override to set with.
+	 * @param OutAcousticPropertiesOverride - Reference to the modified Acoustic Properties Override.
+	 * @return True if OutAcousticPropertiesOverride is valid.
+	**/
+	UFUNCTION(BlueprintCallable, Category = "Audiokinetic|AkGeometry")
+	bool SetAcousticPropertiesOverride(UMaterialInterface* InMaterialInterface, FAkGeometrySurfaceOverride InAcousticPropertiesOverride, FAkGeometrySurfaceOverride& OutAcousticPropertiesOverride);
+
+	/**
+	 * Set the Acoustic Texture overriding this Geometry.
+	 * @param InMaterialInterface - If this Geometry's Mesh Type is set to Static Mesh, provide the Material Interface to override. Leave empty if the Mesh Type is set to Simple Collision.
+	 * @param InAcousticTexture - Acoustic Texture to set with.
+	 * @param OutAcousticPropertiesOverride - Reference to the modified Acoustic Properties Override.
+	 * @return True if OutAcousticPropertiesOverride is valid.
+	**/
+	UFUNCTION(BlueprintCallable, Category = "Audiokinetic|AkGeometry")
+	bool SetAcousticTextureOverride(UMaterialInterface* InMaterialInterface, UAkAcousticTexture* InAcousticTexture, FAkGeometrySurfaceOverride& OutAcousticPropertiesOverride);
+
+	/**
+	 * Set the Transmission Loss overriding this Geometry.
+	 * @param InMaterialInterface - If this Geometry's Mesh Type is set to Static Mesh, provide the Material Interface to override. Leave empty if the Mesh Type is set to Simple Collision.
+	 * @param InTransmissionLoss - Transmission Loss value to set with.
+	 * @param OutAcousticPropertiesOverride - Reference to the modified Acoustic Properties Override.
+	 * @return True if OutAcousticPropertiesOverride is valid.
+	**/
+	UFUNCTION(BlueprintCallable, Category = "Audiokinetic|AkGeometry")
+	bool SetTransmissionLossOverride(UMaterialInterface* InMaterialInterface, float InTransmissionLoss, bool bInEnableTransmissionLossOverride, FAkGeometrySurfaceOverride& OutAcousticPropertiesOverride);
+
+	/**
+	 * Enable or disable the transmission loss of this Geometry to be overriden.
+	 * @param InMaterialInterface - If this Geometry's Mesh Type is set to Static Mesh, provide the Material Interface to override. Leave empty if the Mesh Type is set to Simple Collision.
+	 * @param bInEnableTransmissionLossOverride - Set to true to enable Transmission Loss override.
+	 * @param OutAcousticPropertiesOverride - Reference to the modified Acoustic Properties Override.
+	 * @return True if OutAcousticPropertiesOverride is valid.
+	**/
+	UFUNCTION(BlueprintCallable, Category = "Audiokinetic|AkGeometry")
+	bool SetEnableTransmissionLossOverride(UMaterialInterface* InMaterialInterface, bool bInEnableTransmissionLossOverride, FAkGeometrySurfaceOverride& OutAcousticPropertiesOverride);
+
 	/** Enable or disable geometric diffraction for this mesh. Check this box to have Wwise Spatial Audio generate diffraction edges on the geometry. The diffraction edges will be visible in the Wwise game object viewer when connected to the game. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Geometry")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Geometry")
 	bool bEnableDiffraction = false;
 
 	/** Enable or disable geometric diffraction on boundary edges for this Geometry. Boundary edges are edges that are connected to only one triangle. Depending on the specific shape of the geometry, boundary edges may or may not be useful and it is beneficial to reduce the total number of diffraction edges to process.  */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Geometry", meta = (EditCondition = "bEnableDiffraction"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Geometry", meta = (EditCondition = "bEnableDiffraction"))
 	bool bEnableDiffractionOnBoundaryEdges = false;
+
+	/**
+	* Enable or disable geometric diffraction for this mesh.
+	* @param bInEnableDiffraction - Set to true to have Wwise Spatial Audio generate diffraction edges on the geometry.
+	* @param bInEnableDiffractionOnBoundaryEdges - Set to true to enable geometric diffraction on boundary edges for this Geometry. Boundary edges are edges that are connected to only one triangle.
+	*/
+	UFUNCTION(BlueprintCallable, Category = "Audiokinetic|AkGeometry")
+	void SetEnableDiffraction(bool bInEnableDiffraction, bool bInEnableDiffractionOnBoundaryEdges);
 
 	/** (Deprecated) Associate this Geometry component with a Room.
 	* This property is deprecated and will be removed in a future version. We recommend not using it by leaving it set to None.
@@ -215,4 +272,8 @@ private:
 	FOnRefreshDetails OnRefreshDetails;
 	FDelegateHandle OnMeshMaterialChangedHandle;
 #endif
+
+	bool _SetAcousticPropertiesOverride(UMaterialInterface* InMaterialInterface, FAkGeometrySurfaceOverride InAcousticPropertiesOverride, FAkGeometrySurfaceOverride& OutAcousticPropertiesOverride);
+	void OnCollisionAcousticPropertiesOverrideChanged();
+	void OnStaticMeshAcousticPropertiesOverrideChanged(UMaterialInterface* InMaterialInterface);
 };

@@ -831,6 +831,17 @@ void FAkAudioDevice::ResumePie(const bool bIsSimulating)
 	}
 }
 
+void FAkAudioDevice::ExecuteActionOnPlayingID(AK::SoundEngine::AkActionOnEventType in_ActionType, uint32 PlayingID,
+                                              AkTimeMs in_uTransitionDuration, AkCurveInterpolation in_eFadeCurve)
+{
+	auto* SoundEngine = IWwiseSoundEngineAPI::Get();
+	if (LIKELY(SoundEngine))
+	{
+		SoundEngine->ExecuteActionOnPlayingID(in_ActionType, PlayingID,
+		                                      in_uTransitionDuration, in_eFadeCurve);
+	}
+}
+
 void FAkAudioDevice::OnSwitchBeginPIEAndSIE(const bool bIsSimulating)
 {
 	if(EditorListener != nullptr)
@@ -1900,7 +1911,9 @@ AKRESULT FAkAudioDevice::SeekOnEvent(
 
 		if (Component->AllowAudioPlayback())
         {
-            return SoundEngine->SeekOnEvent(EventShortID, Component->GetAkGameObjectID(), Percent, bSeekToNearestMarker, PlayingID);
+			AKRESULT Result = SoundEngine->SeekOnEvent(EventShortID, Component->GetAkGameObjectID(), Percent,
+			                                           bSeekToNearestMarker, PlayingID);
+			return Result;
         }
     }
     return AKRESULT::AK_Fail;
@@ -3034,12 +3047,55 @@ void FAkAudioDevice::StopGameObject( UAkComponent * in_pComponent )
 	{
 		gameObjId = in_pComponent->GetAkGameObjectID();
 	}
+
+	StopGameObjectID(gameObjId);
+}
+
+/**
+ * Stop all audio associated with a game object ID
+ *
+ * @param in_gameObjectID		ID of the game object
+ */
+void FAkAudioDevice::StopGameObjectID(AkGameObjectID in_gameObjectID)
+{
+	if (m_bSoundEngineInitialized)
+	{
+		auto* SoundEngine = IWwiseSoundEngineAPI::Get();
+		if (UNLIKELY(!SoundEngine)) return;
+
+		SoundEngine->StopAll(in_gameObjectID);
+	}
+}
+
+/**
+ * Pause all audio associated with a playing ID
+ *
+ * @param in_playingID		Playing ID to pause
+ */
+void FAkAudioDevice::PausePlayingID(AkPlayingID in_playingID, AkTimeMs in_uTransitionDuration, AkCurveInterpolation in_eFadeCurve)
+{
 	if ( m_bSoundEngineInitialized )
 	{
 		auto* SoundEngine = IWwiseSoundEngineAPI::Get();
 		if (UNLIKELY(!SoundEngine)) return;
 
-		SoundEngine->StopAll( gameObjId );
+		SoundEngine->ExecuteActionOnPlayingID(AK::SoundEngine::AkActionOnEventType_Pause, in_playingID, in_uTransitionDuration, in_eFadeCurve );
+	}
+}
+
+/**
+ * Resume all audio associated with a playing ID
+ *
+ * @param in_playingID		Playing ID to resume
+ */
+void FAkAudioDevice::ResumePlayingID( AkPlayingID in_playingID, AkTimeMs in_uTransitionDuration, AkCurveInterpolation in_eFadeCurve)
+{
+	if ( m_bSoundEngineInitialized )
+	{
+		auto* SoundEngine = IWwiseSoundEngineAPI::Get();
+		if (UNLIKELY(!SoundEngine)) return;
+
+		SoundEngine->ExecuteActionOnPlayingID(AK::SoundEngine::AkActionOnEventType_Resume, in_playingID, in_uTransitionDuration, in_eFadeCurve );
 	}
 }
 
@@ -3686,16 +3742,21 @@ void FAkAudioDevice::CancelEventCallbackDelegate(const FOnAkPostEventCallback& i
 AKRESULT FAkAudioDevice::SetAttenuationScalingFactor(AActor* Actor, float ScalingFactor)
 {
 	AKRESULT eResult = AK_Fail;
-	if ( m_bSoundEngineInitialized )
-	{
-		auto* SoundEngine = IWwiseSoundEngineAPI::Get();
-		if (UNLIKELY(!SoundEngine)) return AK_NotInitialized;
 
-		AkGameObjectID GameObjID = DUMMY_GAMEOBJ;
-		eResult = GetGameObjectID( Actor, GameObjID );
-		if( eResult == AK_Success )
+	if ( m_bSoundEngineInitialized && Actor )
+	{
+		UWorld* World = Actor->GetWorld();
+		if (World && ShouldNotifySoundEngine(World->WorldType))
 		{
-			eResult = SoundEngine->SetScalingFactor(GameObjID, ScalingFactor);
+			auto* SoundEngine = IWwiseSoundEngineAPI::Get();
+			if (UNLIKELY(!SoundEngine)) return AK_NotInitialized;
+
+			AkGameObjectID GameObjID = DUMMY_GAMEOBJ;
+			eResult = GetGameObjectID(Actor, GameObjID);
+			if (eResult == AK_Success)
+			{
+				eResult = SoundEngine->SetScalingFactor(GameObjID, ScalingFactor);
+			}
 		}
 	}
 
@@ -3707,10 +3768,14 @@ AKRESULT FAkAudioDevice::SetAttenuationScalingFactor(UAkGameObject* AkGameObject
 	AKRESULT eResult = AK_Fail;
 	if ( m_bSoundEngineInitialized && AkGameObject)
 	{
-		auto* SoundEngine = IWwiseSoundEngineAPI::Get();
-		if (UNLIKELY(!SoundEngine)) return AK_NotInitialized;
+		UWorld* World = AkGameObject->GetWorld();
+		if (World && ShouldNotifySoundEngine(World->WorldType))
+		{
+			auto* SoundEngine = IWwiseSoundEngineAPI::Get();
+			if (UNLIKELY(!SoundEngine)) return AK_NotInitialized;
 
-		eResult = SoundEngine->SetScalingFactor(AkGameObject->GetAkGameObjectID(), ScalingFactor);
+			eResult = SoundEngine->SetScalingFactor(AkGameObject->GetAkGameObjectID(), ScalingFactor);
+		}
 	}
 	return eResult;
 }
@@ -3754,13 +3819,13 @@ bool FAkAudioDevice::EnsureInitialized()
 	SCOPED_AKAUDIO_EVENT_2(TEXT("FAkAudioDevice::EnsureInitialized"));
 
 	UE_CLOG(bLogWwiseVersionOnce, LogAkAudio, Log,
-		TEXT("Wwise(R) SDK Version %d.%d.%d Build %d [%s]. Copyright (c) 2006-%d Audiokinetic Inc."),
+		TEXT("Wwise(R) SDK Version %d.%d.%d Build %d [%s]. %s"),
 		AK_WWISESDK_VERSION_MAJOR,
 		AK_WWISESDK_VERSION_MINOR,
 		AK_WWISESDK_VERSION_SUBMINOR,
 		AK_WWISESDK_VERSION_BUILD,
 		TEXT(WWISE_CONFIGURATION_DIR),
-		AK_WWISESDK_VERSION_MAJOR);
+		TEXT(AK_WWISESDK_COPYRIGHT));
 	bLogWwiseVersionOnce = false;
 
 	auto* ResourceLoader = FWwiseResourceLoader::Get();

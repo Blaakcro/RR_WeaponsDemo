@@ -29,6 +29,19 @@ public class WwiseUtils : ModuleRules
 
 		PrivateDependencyModuleNames.AddRange(new string[] {
 		});
+		
+		PublicDefinitions.AddRange(new string[]
+		{
+			"WWISE_INTEGRATION_VERSION_MAJOR=2023",	
+			"WWISE_INTEGRATION_VERSION_MINOR=1",
+			"WWISE_INTEGRATION_VERSION=\"2023.1\"",
+			"WWISE_INTEGRATION_2023_1=1",	
+
+			"WWISE_INTEGRATION_2022_1_OR_LATER=1",	
+			"WWISE_INTEGRATION_2023_1_OR_LATER=1",	
+			"WWISE_INTEGRATION_2024_1_OR_LATER=0",	
+			"WWISE_INTEGRATION_2025_1_OR_LATER=0",	
+		});
 
 #if UE_5_3_OR_LATER
 		bLegacyParentIncludePaths = false;

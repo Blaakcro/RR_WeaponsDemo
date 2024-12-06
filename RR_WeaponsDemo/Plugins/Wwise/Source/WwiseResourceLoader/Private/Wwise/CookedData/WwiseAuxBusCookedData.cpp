@@ -19,6 +19,10 @@ Copyright (c) 2024 Audiokinetic Inc.
 
 #include "Wwise/Stats/ResourceLoader.h"
 
+#if WITH_EDITORONLY_DATA && UE_5_5_OR_LATER
+#include "Serialization/CompactBinaryWriter.h"
+#endif
+
 #include <inttypes.h>
 
 FWwiseAuxBusCookedData::FWwiseAuxBusCookedData():
@@ -43,6 +47,32 @@ void FWwiseAuxBusCookedData::Serialize(FArchive& Ar)
 	}
 }
 
+
+#if WITH_EDITORONLY_DATA && UE_5_5_OR_LATER
+void FWwiseAuxBusCookedData::PreSave(FObjectPreSaveContext& SaveContext, FCbWriter& Writer) const
+{
+	Writer << "AuxBus";
+	Writer.BeginObject();
+	Writer << "Id" << AuxBusId;
+	
+	Writer << "SBs";
+	Writer.BeginArray();
+	for (auto& SoundBank : SoundBanks)
+	{
+		SoundBank.PreSave(SaveContext, Writer);
+	}
+	Writer.EndArray();
+
+	Writer << "Ms";
+	Writer.BeginArray();
+	for (auto& MediaItem : Media)
+	{
+		MediaItem.PreSave(SaveContext, Writer);
+	}
+	Writer.EndArray();
+	Writer.EndObject();
+}
+#endif
 FString FWwiseAuxBusCookedData::GetDebugString() const
 {
 	bool bFirst = true;

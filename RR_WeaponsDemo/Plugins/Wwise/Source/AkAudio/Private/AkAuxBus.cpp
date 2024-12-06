@@ -22,6 +22,11 @@ Copyright (c) 2024 Audiokinetic Inc.
 #include "AkAudioDevice.h"
 #include "Wwise/Stats/AkAudio.h"
 
+#if WITH_EDITORONLY_DATA && UE_5_5_OR_LATER
+#include "UObject/ObjectSaveContext.h"
+#include "Serialization/CompactBinaryWriter.h"
+#endif
+
 #if WITH_EDITORONLY_DATA
 #include "Wwise/WwiseProjectDatabase.h"
 #include "Wwise/WwiseResourceCooker.h"
@@ -184,6 +189,44 @@ bool UAkAuxBus::ObjectIsInSoundBanks()
 
 	return AudioTypeRef.IsValid();
 }
+
+#if WITH_EDITORONLY_DATA && UE_5_5_OR_LATER
+UE_COOK_DEPENDENCY_FUNCTION(HashWwiseAuxBusDependenciesForCook, UAkAudioType::HashDependenciesForCook);
+
+void UAkAuxBus::PreSave(FObjectPreSaveContext SaveContext)
+{
+	ON_SCOPE_EXIT
+	{
+		Super::PreSave(SaveContext);
+	};
+
+	if (!SaveContext.IsCooking())
+	{
+		return;
+	}
+
+	auto* ResourceCooker = FWwiseResourceCooker::GetForPlatform(SaveContext.GetTargetPlatform());
+	if (UNLIKELY(!ResourceCooker))
+	{
+		return;
+	}
+
+	FWwiseLocalizedAuxBusCookedData CookedDataToArchive;
+	ResourceCooker->PrepareCookedData(CookedDataToArchive, GetValidatedInfo(AuxBusInfo));
+	FillMetadata(ResourceCooker->GetProjectDatabase());
+
+	FCbWriter Writer;
+	Writer.BeginObject();
+	CookedDataToArchive.PreSave(SaveContext, Writer);
+	Writer
+		<< "Radius" << MaxAttenuationRadius;
+	Writer.EndObject();
+	
+	SaveContext.AddCookBuildDependency(
+		UE::Cook::FCookDependency::Function(
+			UE_COOK_DEPENDENCY_FUNCTION_CALL(HashWwiseAuxBusDependenciesForCook), Writer.Save()));
+}
+#endif
 
 void UAkAuxBus::FillInfo()
 {

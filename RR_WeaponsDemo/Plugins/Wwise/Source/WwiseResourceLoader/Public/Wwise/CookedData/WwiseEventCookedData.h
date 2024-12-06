@@ -18,6 +18,7 @@ Copyright (c) 2024 Audiokinetic Inc.
 #pragma once
 
 #include "Wwise/CookedData/WwiseSwitchContainerLeafCookedData.h"
+#include "WwiseUnrealDefines.h"
 
 #include "WwiseEventCookedData.generated.h"
 
@@ -64,6 +65,9 @@ struct WWISERESOURCELOADER_API FWwiseEventCookedData
 	FWwiseEventCookedData();
 
 	void Serialize(FArchive& Ar);
-
+#if WITH_EDITORONLY_DATA && UE_5_5_OR_LATER
+	void PreSave(FObjectPreSaveContext& SaveContext, FCbWriter& Writer) const;
+#endif
+	
 	FString GetDebugString() const;
 };

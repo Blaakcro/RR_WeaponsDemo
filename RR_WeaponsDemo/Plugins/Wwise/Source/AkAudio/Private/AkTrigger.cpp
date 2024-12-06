@@ -24,6 +24,11 @@ Copyright (c) 2024 Audiokinetic Inc.
 #include "AkAudioDevice.h"
 #endif
 
+#if WITH_EDITORONLY_DATA && UE_5_5_OR_LATER
+#include "UObject/ObjectSaveContext.h"
+#include "Serialization/CompactBinaryWriter.h"
+#endif
+
 void UAkTrigger::Serialize(FArchive& Ar)
 {
 	Super::Serialize(Ar);
@@ -132,5 +137,41 @@ void UAkTrigger::GetTriggerCookedData()
 		return;
 	}
 	ResourceCooker->PrepareCookedData(TriggerCookedData, GetValidatedInfo(TriggerInfo));
+}
+#endif
+
+#if WITH_EDITORONLY_DATA && UE_5_5_OR_LATER
+UE_COOK_DEPENDENCY_FUNCTION(HashWwiseTriggerDependenciesForCook, UAkAudioType::HashDependenciesForCook);
+
+void UAkTrigger::PreSave(FObjectPreSaveContext SaveContext)
+{
+	ON_SCOPE_EXIT
+	{
+		Super::PreSave(SaveContext);
+	};
+
+	if (!SaveContext.IsCooking())
+	{
+		return;
+	}
+
+	auto* ResourceCooker = FWwiseResourceCooker::GetForPlatform(SaveContext.GetTargetPlatform());
+	if (UNLIKELY(!ResourceCooker))
+	{
+		return;
+	}
+
+	FWwiseTriggerCookedData CookedDataToArchive;
+	ResourceCooker->PrepareCookedData(CookedDataToArchive, GetValidatedInfo(TriggerInfo));
+	FillMetadata(ResourceCooker->GetProjectDatabase());
+
+	FCbWriter Writer;
+	Writer.BeginObject();
+	CookedDataToArchive.PreSave(SaveContext, Writer);
+	Writer.EndObject();
+	
+	SaveContext.AddCookBuildDependency(
+		UE::Cook::FCookDependency::Function(
+			UE_COOK_DEPENDENCY_FUNCTION_CALL(HashWwiseTriggerDependenciesForCook), Writer.Save()));
 }
 #endif

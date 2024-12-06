@@ -42,7 +42,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintSetter = SetEnable, Category="EnableComponent", meta = (DisplayName = "Enable Room"))
 	bool bEnable = false;
 
-	UFUNCTION(BlueprintSetter, Category = "EnableComponent")
+	UFUNCTION(BlueprintSetter, Category = "Audiokinetic|AkRoomComponent")
 	void SetEnable(bool bInEnable);
 
 	/** 
@@ -54,7 +54,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintSetter = SetDynamic, Category = "Room", meta = (DisplayName = "Room Is Dynamic"))
 	bool bDynamic = false;
 
-	UFUNCTION(BlueprintSetter, Category = "Room")
+	UFUNCTION(BlueprintSetter, Category = "Audiokinetic|AkRoomComponent")
 	void SetDynamic(bool bInDynamic);
 
 	/**
@@ -68,8 +68,7 @@ public:
 	/**
 	* Used to set the transmission loss value in wwise, on emitters in the Room, when no audio paths to the 
 	* listener are found via sound propagation in Wwise Spatial Audio. This value can be thought of as 
-	* 'thickness', as it relates to how much sound energy is transmitted through the wall. Valid range 0.0f-1.0f, 
-	* and is mapped to the occlusion curve as defined in the Wwise project.
+	* 'thickness', as it relates to how much sound energy is transmitted through the wall. Valid range 0.0f-1.0f.
 	*/
 	UPROPERTY(EditAnywhere, BlueprintSetter = SetTransmissionLoss, DisplayName = "Transmission Loss", Category = "Room", meta = (ClampMin=0.0f, ClampMax=1.0f, UIMin=0.0f, UIMax=1.0f))
 	float WallOcclusion = .0f;
@@ -78,7 +77,7 @@ public:
 	* Sets the transmission loss value.
 	* @param InTransmissionLoss - The new value for the transmission loss. Valid range 0.0f-1.0f.
 	*/
-	UFUNCTION(BlueprintSetter, Category = "Room")
+	UFUNCTION(BlueprintSetter, Category = "Audiokinetic|AkRoomComponent")
 	void SetTransmissionLoss(float InTransmissionLoss);
 
 	/**
@@ -91,16 +90,12 @@ public:
 	* Sets the Send level. A value of 0 disables the aux send.
 	* @param InAuxSendLevel - The new value for the Send level. Valid range 0.0f-1.0f.
 	*/
-	UFUNCTION(BlueprintSetter, Category = "ReverbZone")
+	UFUNCTION(BlueprintSetter, Category = "Audiokinetic|AkRoomComponent")
 	void SetAuxSendLevel(float InAuxSendLevel);
 
 	/** Automatically post the associated AkAudioEvent on BeginPlay */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AkEvent", SimpleDisplay)
 	bool AutoPost = false;
-
-	/** Sets the attenuation scaling factor, which modifies the attenuation computations on this game object to simulate sounds with a a larger or smaller area of effect. */
-	UFUNCTION(BlueprintCallable, BlueprintCosmetic, Category = "Audiokinetic|AkRoomComponent")
-	void SetAttenuationScalingFactor(float Value);
 
 	/**
 	* Sets this Room as a Reverb Zone.
@@ -112,7 +107,7 @@ public:
 	bool bEnableReverbZone = false;
 
 	/** Set bEnableReverbZone to a new value and set or remove the Reverb Zone in Wwise. */
-	UFUNCTION(BlueprintSetter, Category = "ReverbZone")
+	UFUNCTION(BlueprintSetter, Category = "Audiokinetic|AkRoomComponent")
 	void SetEnableReverbZone(bool bInEnableReverbZone);
 
 	/**
@@ -127,7 +122,7 @@ public:
 	AActor* ParentRoomActor = nullptr;
 
 	/** Set ParentRoomActor with a new actor and update the Reverb Zone in Wwise asynchronously. */
-	UFUNCTION(BlueprintSetter, Category = "ReverbZone")
+	UFUNCTION(BlueprintSetter, Category = "Audiokinetic|AkRoomComponent")
 	void UpdateParentRoomActor(AActor* InParentRoomActor);
 
 	/**
@@ -146,7 +141,7 @@ public:
 	float TransitionRegionWidth = 100.f;
 
 	/** Set TransitionRegionWidth to a new value and updates the Reverb Zone in Wwise asynchronously. */
-	UFUNCTION(BlueprintSetter, Category = "ReverbZone")
+	UFUNCTION(BlueprintSetter, Category = "Audiokinetic|AkRoomComponent")
 	void UpdateTransitionRegionWidth(float InTransitionRegionWidth);
 
 	/** Posts this game object's AkAudioEvent to Wwise, using this as the game object source */
@@ -228,7 +223,6 @@ public:
 	virtual void EndPlay(EEndPlayReason::Type EndPlayReason) override;
 
 #if WITH_EDITOR
-	virtual void PreEditChange(FProperty* PropertyAboutToChange) override;
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 	void OnParentNameChanged();
 #endif
@@ -285,13 +279,10 @@ private:
 	bool IsAParentOf(TWeakObjectPtr<const UAkRoomComponent> InRoom) const;
 	void SetParentRoom(TWeakObjectPtr<const UAkRoomComponent> InParentRoom);
 
-	bool SetAttenuationScalingFactor();
-
 	UPROPERTY()
 	TWeakObjectPtr<const UAkRoomComponent> ParentRoom;
 	bool bIsAReverbZoneInWwise = false;
 	bool bReverbZoneNeedsUpdate = false;
-	bool bAttenuationScalingFactorNeedsUpdate = false;
 
 #if WITH_EDITOR
 	void HandleObjectsReplaced(const TMap<UObject*, UObject*>& ReplacementMap);

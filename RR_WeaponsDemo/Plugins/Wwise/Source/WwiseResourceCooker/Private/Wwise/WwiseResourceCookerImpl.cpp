@@ -23,6 +23,7 @@ Copyright (c) 2024 Audiokinetic Inc.
 #include "Wwise/Metadata/WwiseMetadataPlatformInfo.h"
 #include "Wwise/Metadata/WwiseMetadataPlugin.h"
 #include "Wwise/Stats/ResourceCooker.h"
+#include "Wwise/WwiseAllowShrinking.h"
 
 #include "Async/Async.h"
 #include "Async/MappedFileHandle.h"
@@ -167,12 +168,16 @@ void FWwiseResourceCookerImpl::CookMediaToSandbox(const FWwiseMediaCookedData& I
 		return;
 	}
 
-	auto* ResourceLoader = GetResourceLoader();
-	if (UNLIKELY(!ResourceLoader))
+	FString GeneratedSoundBanksPath = InCookedData.SourcePathName;
+	if (GeneratedSoundBanksPath.Len() == 0)
 	{
-		return;
+		auto* ResourceLoader = GetResourceLoader();
+		if (UNLIKELY(!ResourceLoader))
+		{
+			return;
+		}
+		GeneratedSoundBanksPath = ResourceLoader->GetUnrealGeneratedSoundBanksPath(InCookedData.MediaPathName);
 	}
-	const FString GeneratedSoundBanksPath = ResourceLoader->GetUnrealGeneratedSoundBanksPath(InCookedData.MediaPathName);
 
 	CookFileToSandbox(GeneratedSoundBanksPath, InCookedData.MediaPathName, WriteAdditionalFile);
 }
@@ -201,13 +206,17 @@ void FWwiseResourceCookerImpl::CookSoundBankToSandbox(const FWwiseSoundBankCooke
 		return;
 	}
 
-	auto* ResourceLoader = GetResourceLoader();
-	if (UNLIKELY(!ResourceLoader))
+	FString GeneratedSoundBanksPath = InCookedData.SourcePathName;
+	if (GeneratedSoundBanksPath.Len() == 0)
 	{
-		return;
+		auto* ResourceLoader = GetResourceLoader();
+		if (UNLIKELY(!ResourceLoader))
+		{
+			return;
+		}
+		GeneratedSoundBanksPath = ResourceLoader->GetUnrealGeneratedSoundBanksPath(InCookedData.SoundBankPathName);
 	}
-	const FString GeneratedSoundBanksPath = ResourceLoader->GetUnrealGeneratedSoundBanksPath(InCookedData.SoundBankPathName);
-
+	
 	CookFileToSandbox(GeneratedSoundBanksPath, InCookedData.SoundBankPathName, WriteAdditionalFile);
 }
 
@@ -520,11 +529,11 @@ bool FWwiseResourceCookerImpl::GetAuxBusCookedData(FWwiseLocalizedAuxBusCookedDa
 		TArray<FWwiseLanguageCookedData> Keys;
 		Map.GetKeys(Keys);
 
-		auto LhsKey = Keys.Pop(false);
+		auto LhsKey = Keys.Pop(EWwiseAllowShrinking::No);
 		const auto* Lhs = Map.Find(LhsKey);
 		while (Keys.Num() > 0)
 		{
-			auto RhsKey = Keys.Pop(false);
+			auto RhsKey = Keys.Pop(EWwiseAllowShrinking::No);
 			const auto* Rhs = Map.Find(RhsKey);
 
 			if (Lhs->AuxBusId != Rhs->AuxBusId
@@ -1265,11 +1274,11 @@ bool FWwiseResourceCookerImpl::GetEventCookedData(FWwiseLocalizedEventCookedData
 		TArray<FWwiseLanguageCookedData> Keys;
 		Map.GetKeys(Keys);
 
-		auto LhsKey = Keys.Pop(false);
+		auto LhsKey = Keys.Pop(EWwiseAllowShrinking::No);
 		const auto* Lhs = Map.Find(LhsKey);
 		while (Keys.Num() > 0)
 		{
-			auto RhsKey = Keys.Pop(false);
+			auto RhsKey = Keys.Pop(EWwiseAllowShrinking::No);
 			const auto* Rhs = Map.Find(RhsKey);
 
 			if (Lhs->EventId != Rhs->EventId
@@ -1830,11 +1839,11 @@ bool FWwiseResourceCookerImpl::GetShareSetCookedData(FWwiseLocalizedShareSetCook
 		TArray<FWwiseLanguageCookedData> Keys;
 		Map.GetKeys(Keys);
 
-		auto LhsKey = Keys.Pop(false);
+		auto LhsKey = Keys.Pop(EWwiseAllowShrinking::No);
 		const auto* Lhs = Map.Find(LhsKey);
 		while (Keys.Num() > 0)
 		{
-			auto RhsKey = Keys.Pop(false);
+			auto RhsKey = Keys.Pop(EWwiseAllowShrinking::No);
 			const auto* Rhs = Map.Find(RhsKey);
 
 			if (Lhs->ShareSetId != Rhs->ShareSetId
@@ -1961,11 +1970,11 @@ bool FWwiseResourceCookerImpl::GetSoundBankCookedData(FWwiseLocalizedSoundBankCo
 		TArray<FWwiseLanguageCookedData> Keys;
 		Map.GetKeys(Keys);
 
-		auto LhsKey = Keys.Pop(false);
+		auto LhsKey = Keys.Pop(EWwiseAllowShrinking::No);
 		const auto* Lhs = Map.Find(LhsKey);
 		while (Keys.Num() > 0)
 		{
-			auto RhsKey = Keys.Pop(false);
+			auto RhsKey = Keys.Pop(EWwiseAllowShrinking::No);
 			const auto* Rhs = Map.Find(RhsKey);
 
 			if (GetTypeHash(*Lhs) != GetTypeHash(*Rhs))
@@ -2156,6 +2165,13 @@ bool FWwiseResourceCookerImpl::FillSoundBankBaseInfo(FWwiseSoundBankCookedData& 
 	{
 		OutSoundBankCookedData.DebugName = FName((ExportDebugNameRule == EWwiseExportDebugNameRule::Name) ? InSoundBank.ShortName : InSoundBank.ObjectPath);
 	}
+
+	auto* ResourceLoader = GetResourceLoader();
+	if (UNLIKELY(!ResourceLoader))
+	{
+		return false;
+	}
+	OutSoundBankCookedData.SourcePathName = ResourceLoader->GetUnrealGeneratedSoundBanksPath(OutSoundBankCookedData.SoundBankPathName);
 	return true;
 }
 
@@ -2213,6 +2229,13 @@ bool FWwiseResourceCookerImpl::FillMediaBaseInfo(FWwiseMediaCookedData& OutMedia
 	{
 		OutMediaCookedData.DebugName = FName(InMedia.ShortName);
 	}
+
+	auto* ResourceLoader = GetResourceLoader();
+	if (UNLIKELY(!ResourceLoader))
+	{
+		return false;
+	}
+	OutMediaCookedData.SourcePathName = ResourceLoader->GetUnrealGeneratedSoundBanksPath(OutMediaCookedData.MediaPathName);
 	return true;
 }
 

@@ -18,6 +18,13 @@ Copyright (c) 2024 Audiokinetic Inc.
 #include "Wwise/CookedData/WwiseMediaCookedData.h"
 
 #include "Wwise/Stats/FileHandler.h"
+
+#if WITH_EDITORONLY_DATA && UE_5_5_OR_LATER
+#include "Cooker/CookDependency.h"
+#include "Serialization/CompactBinaryWriter.h"
+#include "UObject/ObjectSaveContext.h"
+#endif
+
 #include <inttypes.h>
 
 FWwiseMediaCookedData::FWwiseMediaCookedData():
@@ -48,6 +55,29 @@ void FWwiseMediaCookedData::Serialize(FArchive& Ar)
 		UE_CLOG(Ar.IsLoading(), LogWwiseFileHandler, VeryVerbose, TEXT("Serializing from tagged archive %s MediaCookedData %" PRIu32 " %s"), *Ar.GetArchiveName(), MediaId, *DebugName.ToString());
 	}
 }
+
+#if WITH_EDITORONLY_DATA && UE_5_5_OR_LATER
+void FWwiseMediaCookedData::PreSave(FObjectPreSaveContext& SaveContext, FCbWriter& Writer) const
+{
+	Writer << "M";
+	Writer.BeginObject();
+	Writer << "Media" << MediaId;
+	
+	SaveContext.AddCookBuildDependency(UE::Cook::FCookDependency::File(SourcePathName));
+
+	Writer << "F";
+	Writer.BeginObject();
+	Writer
+		<< "PN" << MediaPathName
+		<< "bS" << bStreaming
+		<< "Pf" << PrefetchSize
+		<< "A" << MemoryAlignment
+		<< "D" << bDeviceMemory;
+	Writer.EndObject();
+
+	Writer.EndObject();
+}
+#endif
 
 FString FWwiseMediaCookedData::GetDebugString() const
 {

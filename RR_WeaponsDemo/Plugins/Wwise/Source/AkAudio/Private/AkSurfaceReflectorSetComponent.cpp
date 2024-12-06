@@ -281,11 +281,30 @@ void UAkSurfaceReflectorSetComponent::OnUnregister()
 void UAkSurfaceReflectorSetComponent::UpdateAcousticProperties(TArray<FAkSurfacePoly> in_acousticSurfacePoly)
 {
 	AcousticPolys = in_acousticSurfacePoly;
+	bGeometryNeedsUpdate = true;
+	bSurfaceAreaNeedsUpdate = true;
+}
 
-	if (ReverbDescriptor != nullptr && ParentBrush != nullptr)
+void UAkSurfaceReflectorSetComponent::SetEnableDiffraction(bool bInEnableDiffraction, bool bInEnableDiffractionOnBoundaryEdges)
+{
+	bool bDiffractionChanged = false;
+	bool bBoundaryEdgeDiffractionChanged = false;
+
+	if (bEnableDiffraction != bInEnableDiffraction)
 	{
-		ComputeAcousticPolySurfaceArea();
-		DampingEstimationNeedsUpdate = true;
+		bEnableDiffraction = bInEnableDiffraction;
+		bDiffractionChanged = true;
+	}
+
+	if (bEnableDiffractionOnBoundaryEdges != bInEnableDiffractionOnBoundaryEdges)
+	{
+		bEnableDiffractionOnBoundaryEdges = bInEnableDiffractionOnBoundaryEdges;
+		bBoundaryEdgeDiffractionChanged = true;
+	}
+
+	if (bDiffractionChanged || (bEnableDiffraction && bBoundaryEdgeDiffractionChanged))
+	{
+		bGeometryNeedsUpdate = true;
 	}
 }
 
@@ -1065,6 +1084,18 @@ void UAkSurfaceReflectorSetComponent::TickComponent(float DeltaTime, enum ELevel
 		WasSelected = false;
 		UpdateText(false);
 	}
+
+	if (bSurfaceAreaNeedsUpdate && ReverbDescriptor != nullptr && ParentBrush != nullptr)
+	{
+		ComputeAcousticPolySurfaceArea();
+		DampingEstimationNeedsUpdate = true;
+	}
+
+	if (bGeometryNeedsUpdate)
+	{
+		SendSurfaceReflectorSet();
+		bGeometryNeedsUpdate = false;
+	}
 }
 #endif // WITH_EDITOR
 
@@ -1285,11 +1316,98 @@ void UAkSurfaceReflectorSetComponent::UpdateSurfaceReflectorSet()
 	}
 
 	SendGeometryInstanceToWwise(GetOwner()->ActorToWorld().Rotator(), GetOwner()->GetActorLocation(), GetOwner()->ActorToWorld().GetScale3D(), roomID, bEnableSurfaceReflectors);
+}
 
-	if (ReverbDescriptor != nullptr && ParentBrush != nullptr)
+void UAkSurfaceReflectorSetComponent::SetEnable(bool bInEnable)
+{
+	if (bEnableSurfaceReflectors == bInEnable)
 	{
-		ComputeAcousticPolySurfaceArea();
-		DampingEstimationNeedsUpdate = true;
+		return;
+	}
+
+	bEnableSurfaceReflectors = bInEnable;
+
+	if (bEnableSurfaceReflectors)
+	{
+		SendSurfaceReflectorSet();
+		UpdateSurfaceReflectorSet();
+	}
+	else
+	{
+		RemoveSurfaceReflectorSet();
+	}
+}
+
+void UAkSurfaceReflectorSetComponent::SetSurfaceProperties(TArray<int>& InSurfaceIndexesToEdit, FAkSurfacePoly InSurfaceProperties)
+{
+	for (int i = 0; i < InSurfaceIndexesToEdit.Num(); i++) 
+	{
+		if (AcousticPolys[InSurfaceIndexesToEdit[i]].Occlusion != InSurfaceProperties.Occlusion)
+		{
+			AcousticPolys[InSurfaceIndexesToEdit[i]].Occlusion = InSurfaceProperties.Occlusion;
+			// Transmission Loss changes only need to be update in the geometry if EnableSurface is true
+			if (InSurfaceProperties.EnableSurface)
+			{
+				bGeometryNeedsUpdate = true;
+			}
+		}
+
+		if (AcousticPolys[InSurfaceIndexesToEdit[i]].Texture != InSurfaceProperties.Texture || AcousticPolys[InSurfaceIndexesToEdit[i]].EnableSurface != InSurfaceProperties.EnableSurface)
+		{
+			AcousticPolys[InSurfaceIndexesToEdit[i]].EnableSurface = InSurfaceProperties.EnableSurface;
+			AcousticPolys[InSurfaceIndexesToEdit[i]].Texture = InSurfaceProperties.Texture;
+			bGeometryNeedsUpdate = true;
+			bSurfaceAreaNeedsUpdate = true;
+		}
+	}
+}
+
+void UAkSurfaceReflectorSetComponent::SetEnableSurface(TArray<int>& InSurfaceIndexesToEdit, bool bInEnableSurface)
+{
+	for (int i = 0; i < InSurfaceIndexesToEdit.Num(); i++) 
+	{
+		if (AcousticPolys[InSurfaceIndexesToEdit[i]].EnableSurface != bInEnableSurface)
+		{
+			AcousticPolys[InSurfaceIndexesToEdit[i]].EnableSurface = bInEnableSurface;
+			bGeometryNeedsUpdate = true;
+			bSurfaceAreaNeedsUpdate = true;
+		}
+	}
+}
+
+void UAkSurfaceReflectorSetComponent::SetAcousticTexture(TArray<int>& InSurfaceIndexesToEdit, UAkAcousticTexture* InAcousticTexture, bool bInEnableSurface)
+{
+	for (int i = 0; i < InSurfaceIndexesToEdit.Num(); i++) 
+	{
+		if (AcousticPolys[InSurfaceIndexesToEdit[i]].Texture != InAcousticTexture || AcousticPolys[InSurfaceIndexesToEdit[i]].EnableSurface != bInEnableSurface)
+		{
+			AcousticPolys[InSurfaceIndexesToEdit[i]].Texture = InAcousticTexture;
+			AcousticPolys[InSurfaceIndexesToEdit[i]].EnableSurface = bInEnableSurface;
+			bGeometryNeedsUpdate = true;
+			bSurfaceAreaNeedsUpdate = true;
+		}
+	}
+}
+
+void UAkSurfaceReflectorSetComponent::SetTransmissionLoss(TArray<int>& InSurfaceIndexesToEdit, float InTransmissionLoss, bool bInEnableSurface)
+{
+	for (int i = 0; i < InSurfaceIndexesToEdit.Num(); i++) 
+	{
+		if (AcousticPolys[InSurfaceIndexesToEdit[i]].Occlusion != InTransmissionLoss)
+		{
+			AcousticPolys[InSurfaceIndexesToEdit[i]].Occlusion = InTransmissionLoss;
+			// Transmission Loss changes only need an update if EnableSurface is true
+			if (bInEnableSurface)
+			{
+				bGeometryNeedsUpdate = true;
+			}
+		}
+		if (AcousticPolys[InSurfaceIndexesToEdit[i]].EnableSurface != bInEnableSurface)
+		{
+			AcousticPolys[InSurfaceIndexesToEdit[i]].EnableSurface = bInEnableSurface;
+			bGeometryNeedsUpdate = true;
+			bSurfaceAreaNeedsUpdate = true;
+		}
 	}
 }
 

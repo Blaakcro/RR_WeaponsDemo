@@ -56,24 +56,82 @@ public:
 	/** Enable Surface Reflector Set to send the geometry for reflection and diffraction use. Additional properties are available in the Surface Reflector Set and Surface Properties categories.
 	* Disable Surface Reflector Set to send a geometry that is not used for reflection and diffraction. The complete Surface Reflector Set category and the Transmission Loss property of the Surface Properties category are removed from the details panel.
 	* When Surface Reflector Set is re-enabled after being disabled, the previously set values are restored. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "EnableComponent", meta = (DisplayName = "Enable Surface Reflector Set"))
+	UPROPERTY(EditAnywhere, BlueprintSetter = SetEnable, Category = "EnableComponent", meta = (DisplayName = "Enable Surface Reflector Set"))
 	bool bEnableSurfaceReflectors = false;
+
+	UFUNCTION(BlueprintSetter, Category = "Audiokinetic|AkSurfaceReflectorSet")
+	void SetEnable(bool bInEnable);
 	
 	/** The surface properties of each face on the brush geometry. */
 	UPROPERTY(EditAnywhere, Category = "SurfaceReflectorSet", BlueprintSetter = UpdateAcousticProperties)
 	TArray<FAkSurfacePoly> AcousticPolys;
+
+	/** 
+	 * Set the surface properties of this geometry.
+	 * @param InSurfaceIndexesToEdit - Array containing the indexes of each surface to edit.
+	 * @param InSurfaceProperties - A structure of FAkSurfacePoly specifying the acoustic texture, transmission loss value and enable flag to set on each surface.
+	**/
+	UFUNCTION(BlueprintCallable, Category = "Audiokinetic|AkSurfaceReflectorSet")
+	void SetSurfaceProperties(
+		UPARAM(ref) TArray<int>& InSurfaceIndexesToEdit,
+		FAkSurfacePoly InSurfaceProperties
+	);
+
+	/** 
+	 * Enable or disable surfaces of this geometry.
+	 * @param InSurfaceIndexesToEdit - Array containing the indexes of each surface to edit.
+	 * @param bInEnableSurface - Set to true to enable each surface.
+	**/
+	UFUNCTION(BlueprintCallable, Category = "Audiokinetic|AkSurfaceReflectorSet")
+	void SetEnableSurface(
+		UPARAM(ref) TArray<int>& InSurfaceIndexesToEdit,
+		bool bInEnableSurface
+	);
+
+	/**
+	 * Set the transmission loss value of surfaces of this geometry.
+	 * @param InSurfaceIndexesToEdit - Array containing the indexes of each surface to edit.
+	 * @param InTransmissionLoss - Transmission loss value to set on each surface. Valid range between 0 and 1.
+	 * @param bInEnableSurface - Set to true to enable each surface.
+	**/
+	UFUNCTION(BlueprintCallable, Category = "Audiokinetic|AkSurfaceReflectorSet")
+	void SetTransmissionLoss(
+		UPARAM(ref) TArray<int>& InSurfaceIndexesToEdit,
+		float InTransmissionLoss,
+		bool bInEnableSurface
+	);
+
+	/**
+	 * Update the AcousticTexture (Texture) of some of the faces on the brush geometry.
+	 * @param InSurfaceIndexesToEdit - Array containing the indexes of each surface to edit.
+	 * @param InAcousticTexture - New AcousticTexture assigned to each surface.
+	**/
+	UFUNCTION(BlueprintCallable, Category = "Audiokinetic|AkSurfaceReflectorSet")
+	void SetAcousticTexture(
+		UPARAM(ref) TArray<int>& InSurfaceIndexesToEdit,
+		UAkAcousticTexture* InAcousticTexture,
+		bool bInEnableSurface
+	);
 
 	/** Set AcousticPolys with an input array, compute the surface areas of each poly and notify damping needs updating. */
 	UFUNCTION(BlueprintSetter, Category = "Audiokinetic|AkSurfaceReflectorSet")
 	void UpdateAcousticProperties(TArray<FAkSurfacePoly> in_AcousticPolys);
 
 	/** Enable or disable geometric diffraction for this mesh. Check this box to have Wwise Spatial Audio generate diffraction edges on the geometry. The diffraction edges will be visible in the Wwise game object viewer when connected to the game. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SurfaceReflectorSet")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SurfaceReflectorSet")
 	bool bEnableDiffraction = false;
 
 	/** Enable or disable geometric diffraction on boundary edges for this Geometry. Boundary edges are edges that are connected to only one triangle. Depending on the specific shape of the geometry, boundary edges may or may not be useful and it is beneficial to reduce the total number of diffraction edges to process.  */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SurfaceReflectorSet", meta = (EditCondition = "bEnableDiffraction"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SurfaceReflectorSet", meta = (EditCondition = "bEnableDiffraction"))
 	bool bEnableDiffractionOnBoundaryEdges = false;
+
+	/**
+	* Enable or disable geometric diffraction for this mesh.
+	* @param bInEnableDiffraction - Set to true to have Wwise Spatial Audio generate diffraction edges on the geometry.
+	* @param bInEnableDiffractionOnBoundaryEdges - Set to true to enable geometric diffraction on boundary edges for this Geometry. Boundary edges are edges that are connected to only one triangle.
+	*/
+	UFUNCTION(BlueprintCallable, Category = "Audiokinetic|AkSurfaceReflectorSet")
+	void SetEnableDiffraction(bool bInEnableDiffraction, bool bInEnableDiffractionOnBoundaryEdges);
 
 	/** (Deprecated) Associate this Surface Reflector Set component with a Room.
 	* This property is deprecated and will be removed in a future version. We recommend not using it by leaving it set to None.
@@ -106,7 +164,7 @@ public:
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 	virtual void PostEditUndo() override;
 	virtual void PreEditUndo() override;
-	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction);
+	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override;
 
 	/** Tracks whether the user is interacting with a UI element in the details panel (e.g. a slider) */
 	bool UserInteractionInProgress = false;
@@ -118,7 +176,7 @@ public:
 	void UpdateText(bool Visible);
 	/** Align all of the text components (1 for each face) along one of the edges on the face */
 	void UpdateTextPositions() const;
-	void SurfacePropertiesChanged();
+	virtual void SurfacePropertiesChanged() override;
 	void DestroyTextVisualizers();
 
 	bool WasSelected;
@@ -163,6 +221,8 @@ public:
 private:
 	virtual bool ShouldSendGeometry() const override;
 	void InitializeParentBrush(bool fromTick = false);
+
+	bool bSurfaceAreaNeedsUpdate = false;
 
 #if WITH_EDITOR
 	/** Used to keep track of the surfaces and their acoustic properties so that we can

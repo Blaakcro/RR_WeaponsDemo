@@ -35,6 +35,11 @@ Copyright (c) 2024 Audiokinetic Inc.
 
 #include <inttypes.h>
 
+#if WITH_EDITORONLY_DATA && UE_5_5_OR_LATER
+#include "UObject/ObjectSaveContext.h"
+#include "Serialization/CompactBinaryWriter.h"
+#endif
+
 #if WITH_EDITORONLY_DATA
 #include "Wwise/WwiseProjectDatabase.h"
 #include "Wwise/WwiseResourceCooker.h"
@@ -606,6 +611,47 @@ void UAkAudioEvent::Serialize(FArchive& Ar)
 #endif
 }
 
+#if WITH_EDITORONLY_DATA && UE_5_5_OR_LATER
+UE_COOK_DEPENDENCY_FUNCTION(HashWwiseAudioEventDependenciesForCook, UAkAudioType::HashDependenciesForCook);
+
+void UAkAudioEvent::PreSave(FObjectPreSaveContext SaveContext)
+{
+	ON_SCOPE_EXIT
+	{
+		Super::PreSave(SaveContext);
+	};
+
+	if (!SaveContext.IsCooking())
+	{
+		return;
+	}
+
+	auto* ResourceCooker = FWwiseResourceCooker::GetForPlatform(SaveContext.GetTargetPlatform());
+	if (UNLIKELY(!ResourceCooker))
+	{
+		return;
+	}
+
+	FWwiseLocalizedEventCookedData CookedDataToArchive;
+	ResourceCooker->PrepareCookedData(CookedDataToArchive, GetValidatedInfo(EventInfo));
+	FillMetadata(ResourceCooker->GetProjectDatabase());
+
+	FCbWriter Writer;
+	Writer.BeginObject();
+	CookedDataToArchive.PreSave(SaveContext, Writer);
+	Writer
+		<< "Max" << MaximumDuration
+		<< "Min" << MinimumDuration
+		<< "Infinite" << IsInfinite
+		<< "Radius" << MaxAttenuationRadius;
+	Writer.EndObject();
+	
+	SaveContext.AddCookBuildDependency(
+		UE::Cook::FCookDependency::Function(
+			UE_COOK_DEPENDENCY_FUNCTION_CALL(HashWwiseAudioEventDependenciesForCook), Writer.Save()));
+}
+#endif
+
 #if WITH_EDITORONLY_DATA
 void UAkAudioEvent::FillInfo()
 {
@@ -704,6 +750,8 @@ void UAkAudioEvent::LoadEventData()
 	UE_LOG(LogAkAudio, Verbose, TEXT("%s - LoadEventData"), *GetName());
 	
 	const auto NewlyLoadedEvent = ResourceLoader->LoadEvent(EventCookedData);
+	UE_CLOG(UNLIKELY(!NewlyLoadedEvent), LogAkAudio, Log,
+		TEXT("UAkAudioEvent::LoadEventData(%s): Could not LoadEvent"), *GetName());
 	auto PreviouslyLoadedEvent = LoadedEvent.exchange(NewlyLoadedEvent);
 	if (UNLIKELY(PreviouslyLoadedEvent))
 	{

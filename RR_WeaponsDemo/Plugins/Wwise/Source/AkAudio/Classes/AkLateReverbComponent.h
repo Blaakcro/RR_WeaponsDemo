@@ -178,19 +178,21 @@ private:
 #endif
 #if WITH_EDITORONLY_DATA
 	static float TextVisualizerHeightOffset;
-	bool bTextStatusNeedsUpdate = false;
+	bool bTextValuesNeedUpdate = false;
+	bool bTextVisibilityNeedUpdate = false;
+
 	// The text visualizers display the values of the parameter estimations directly in the level (or blueprint editor).
 	UPROPERTY(SkipSerialization, NonTransactional)
-	UTextRenderComponent* TextVisualizerLabels = nullptr;
+	mutable TObjectPtr<UTextRenderComponent> TextVisualizerLabels;
 	UPROPERTY(SkipSerialization, NonTransactional)
-	UTextRenderComponent* TextVisualizerValues = nullptr;
-	void UpdateTextVisualizerStatus();
-	bool TextVisualizersInitialized() const;
-	FText GetValuesLabels() const;
+	mutable TObjectPtr<UTextRenderComponent> TextVisualizerValues;
+	void UpdateTextVisibility();
+	bool IsTextVisualizersInitialized() const;
+	FText GetTextValues() const;
 	void DestroyTextVisualizers();
 	void InitTextVisualizers();
-	void UpdateValuesLabels();
-	bool WasSelected = false;
+	void UpdateTextValues();
+	bool bWasSelected = false;
 
 	FVector GetTextVisualizersLocation();
 

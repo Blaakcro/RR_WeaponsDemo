@@ -27,6 +27,8 @@ class FJsonValue;
 struct WWISEPROJECTDATABASE_API FWwiseMetadataLoadable
 {
 protected:
+
+
 	TSet<FString> RequestedValues;
 	size_t LoadedSize;
 
@@ -37,8 +39,21 @@ protected:
 
 	inline ~FWwiseMetadataLoadable()
 	{
-		UnloadLoadedSize();
+		if (LoadedSize != 0)
+		{
+			UnloadLoadedSize();
+		}
 	}
+
+	FWwiseMetadataLoadable(FWwiseMetadataLoadable&& Other)
+	: LoadedSize(Other.LoadedSize)
+	{
+		Other.LoadedSize = 0;
+	}
+
+	FWwiseMetadataLoadable(const FWwiseMetadataLoadable& other) = default;
+	FWwiseMetadataLoadable& operator=(const FWwiseMetadataLoadable& Other) = default;
+	FWwiseMetadataLoadable& operator=(const FWwiseMetadataLoadable&& Other) = delete;
 
 public:
 	void AddRequestedValue(const FString& Type, const FString& Value);

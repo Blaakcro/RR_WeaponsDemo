@@ -153,7 +153,7 @@ void FUAssetDataSource::GetAssetsInfo(FGuid ItemId, uint32 ShortId, FString Name
 	Id.GroupId = GroupId;
 	Id.Name = FName(*Name);
 
-	if (auto Item = UsedItems.Find(Id.ItemId))
+	if (auto* Item = UsedItems.Find(Id.ItemId))
 	{
 		Assets = Item->AssetsData;
 		ItemType = Item->Type;
@@ -161,10 +161,10 @@ void FUAssetDataSource::GetAssetsInfo(FGuid ItemId, uint32 ShortId, FString Name
 	}
 
 	auto Pair = TPair<uint32, uint32>(Id.ShortId, Id.GroupId);
-	if (auto Item = UAssetWithoutGuid.Find(Pair))
+	if (auto* Item = UAssetWithoutGuid.Find(Pair))
 	{
 		auto GuidItem = UsedItems.Find(Id.ItemId);
-		for(auto Asset : Item->AssetsData)
+		for(auto& Asset : Item->AssetsData)
 		{
 			if (!AkUnrealAssetDataHelper::IsSameType(Asset, Item->Type))
 			{
@@ -184,10 +184,10 @@ void FUAssetDataSource::GetAssetsInfo(FGuid ItemId, uint32 ShortId, FString Name
 		UAssetWithoutGuid.Remove(Pair);
 	}
 
-	if (auto Item = UAssetWithoutShortId.Find(FName(*Name)))
+	if (auto* Item = UAssetWithoutShortId.Find(FName(*Name)))
 	{
 		auto GuidItem = UsedItems.Find(Id.ItemId);
-		for(auto Asset : Item->AssetsData)
+		for(auto& Asset : Item->AssetsData)
 		{
 			if(!AkUnrealAssetDataHelper::IsSameType(Asset, Item->Type))
 			{

@@ -184,6 +184,12 @@ void FWwiseInMemorySoundBankFileState::UnloadFromSoundEngine(FUnloadFromSoundEng
 			return UnloadFromSoundEngineToClosedFile(MoveTemp(InCallback));
 		}
 
+		if (UNLIKELY(IsEngineExitRequested() && !SoundEngine->IsInitialized()))
+		{
+			UE_LOG(LogWwiseFileHandler, Log, TEXT("FWwiseInMemorySoundBankFileState::UnloadFromSoundEngine: Cannot unload %" PRIu32 " (%s) SoundBank with an uninitialized SoundEngine."), SoundBankId, *DebugName.ToString());
+			return UnloadFromSoundEngineToClosedFile(MoveTemp(InCallback));
+		}
+
 		BankUnloadCookie* Cookie = new BankUnloadCookie(this);
 		UE_LOG(LogWwiseFileHandler, VeryVerbose, TEXT("FWwiseInMemorySoundBankFileState::UnloadFromSoundEngine %p: Cookie %p."), this, Cookie);
 		if(!Cookie)

@@ -999,6 +999,31 @@ public:
 	void StopGameObject(UAkComponent * in_pComponent);
 
 	/**
+	 * Stop all audio associated with a game object ID
+	 *
+	 * @param in_gameObjectID		Game object ID which should be stopped
+	 */
+	void StopGameObjectID(AkGameObjectID in_gameObjectID);
+
+	/**
+	 * Pause all audio associated with a playing ID
+	 *
+	 * @param in_playingID		AkPlayingID which should be paused
+	 */
+	void PausePlayingID(AkPlayingID in_playingID, AkTimeMs in_uTransitionDuration = 0,
+	                    AkCurveInterpolation in_eFadeCurve = AkCurveInterpolation_Linear);
+
+	/**
+	 * Resume all audio associated with a playing ID
+	 *
+	 * @param in_playingID		AkPlayingID which should be resumed
+	* @param in_uTransitionDuration		Fade duration
+	 * @param in_eFadeCurve		Curve type to be used for the transition
+	 */
+	void ResumePlayingID(AkPlayingID in_playingID, AkTimeMs in_uTransitionDuration = 0,
+	                     AkCurveInterpolation in_eFadeCurve = AkCurveInterpolation_Linear);
+
+	/**
 	 * Stop all audio associated with a playing ID
 	 *
 	 * @param in_playingID		AkPlayingID which should be stopped
@@ -1460,6 +1485,10 @@ public:
 	bool IsEventIDActive(uint32 EventID);
 	void RemovePlayingID(uint32 EventID, uint32 PlayingID);
 	void StopEventID(uint32 EventID);
+	void ExecuteActionOnPlayingID(AK::SoundEngine::AkActionOnEventType in_ActionType,
+	                              uint32 PlayingID,
+	                              AkTimeMs in_uTransitionDuration = 0,
+	                              AkCurveInterpolation in_eFadeCurve = AkCurveInterpolation_Linear);
 
 	FOnSwitchValueLoaded& GetOnSwitchValueLoaded(uint32 SwitchID);
 	void BroadcastOnSwitchValueLoaded(UAkGroupValue* GroupValue);

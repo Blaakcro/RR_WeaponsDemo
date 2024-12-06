@@ -212,15 +212,18 @@ WwiseDialogueArgumentIdsMap FWwiseRefSoundBank::GetAllSoundBankDialogueArguments
 	{
 		return {};
 	}
-	const auto DialogueArguments = SoundBank->GetAllDialogueArguments();
+
 	WwiseDialogueArgumentIdsMap Result;
-	Result.Empty(DialogueArguments.Num());
-	for (const auto& Elem : DialogueArguments)
+
+	for (const auto& DialogueEvent : SoundBank->DialogueEvents)
 	{
-		const auto* GlobalRef = GlobalMap.Find(FWwiseDatabaseLocalizableIdKey(Elem.Id, LanguageId));
-		if (GlobalRef)
+		for (const auto& Elem : DialogueEvent.Arguments)
 		{
-			Result.Add(Elem.Id, *GlobalRef);
+			const auto* GlobalRef = GlobalMap.Find(FWwiseDatabaseLocalizableIdKey(Elem.Id, LanguageId));
+			if (GlobalRef)
+			{
+				Result.Add(Elem.Id, *GlobalRef);
+			}
 		}
 	}
 
@@ -322,15 +325,18 @@ WwiseStateIdsMap FWwiseRefSoundBank::GetAllSoundBankStates(const WwiseStateGloba
 	{
 		return {};
 	}
-	const auto States = SoundBank->GetAllStates();
+
 	WwiseStateIdsMap Result;
-	Result.Empty(States.Num());
-	for (const auto& Elem : States)
+
+	for (const auto& StateGroup : SoundBank->StateGroups)
 	{
-		const auto* GlobalRef = GlobalMap.Find(FWwiseDatabaseLocalizableGroupValueKey(Elem.Get<0>().Id, Elem.Get<1>().Id, LanguageId));
-		if (GlobalRef)
+		for (const auto& State : StateGroup.States)
 		{
-			Result.Add(FWwiseDatabaseGroupValueKey(Elem.Get<0>().Id, Elem.Get<1>().Id), *GlobalRef);
+			const auto* GlobalRef = GlobalMap.Find(FWwiseDatabaseLocalizableGroupValueKey(StateGroup.Id, State.Id, LanguageId));
+			if (GlobalRef)
+			{
+				Result.Add(FWwiseDatabaseGroupValueKey(StateGroup.Id, State.Id), *GlobalRef);
+			}
 		}
 	}
 
@@ -366,15 +372,17 @@ WwiseSwitchIdsMap FWwiseRefSoundBank::GetAllSoundBankSwitches(const WwiseSwitchG
 	{
 		return {};
 	}
-	const auto Switches = SoundBank->GetAllSwitches();
+
 	WwiseSwitchIdsMap Result;
-	Result.Empty(Switches.Num());
-	for (const auto& Elem : Switches)
+	for (const auto& SwitchGroup : SoundBank->SwitchGroups)
 	{
-		const auto* GlobalRef = GlobalMap.Find(FWwiseDatabaseLocalizableGroupValueKey(Elem.Get<0>().Id, Elem.Get<1>().Id, LanguageId));
-		if (GlobalRef)
+		for (const auto& Switch : SwitchGroup.Switches)
 		{
-			Result.Add(FWwiseDatabaseGroupValueKey(Elem.Get<0>().Id, Elem.Get<1>().Id), *GlobalRef);
+			const auto* GlobalRef = GlobalMap.Find(FWwiseDatabaseLocalizableGroupValueKey(SwitchGroup.Id, Switch.Id, LanguageId));
+			if (GlobalRef)
+			{
+				Result.Add(FWwiseDatabaseGroupValueKey(SwitchGroup.Id, Switch.Id), *GlobalRef);
+			}
 		}
 	}
 

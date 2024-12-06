@@ -590,7 +590,7 @@ inline const FWwiseLanguageCookedData* FWwiseResourceLoaderImpl::GetLanguageMapK
 		return &CurrentLanguage;
 	}
 
-	UE_LOG(LogWwiseResourceLoader, Warning, TEXT("GetLanguageMapKey: Could not find language %s while processing asset %s."),
+	UE_LOG(LogWwiseResourceLoader, Log, TEXT("GetLanguageMapKey: Could not find language %s while processing asset %s."),
 		*CurrentLanguage.GetLanguageName().ToString(), *InDebugName.ToString());
 	return nullptr;
 }

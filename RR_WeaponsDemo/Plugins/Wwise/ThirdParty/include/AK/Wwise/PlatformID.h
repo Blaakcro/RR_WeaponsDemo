@@ -128,6 +128,10 @@ namespace PlatformID
 	//{f1895123-76d6-4d2c-8bb4-3650f8a463eb}
 	AK_ID_DECLARE GUID OpenHarmony_unsafeguid = { 0xf1895123, 0x76d6, 0x4d2c, { 0x8b, 0xb4, 0x36, 0x50, 0xf8, 0xa4, 0x63, 0xeb } };
 	AK_ID_DECLARE BasePlatformID OpenHarmony = BasePlatformID::Create(OpenHarmony_unsafeguid);
+		
+	//{a3dce7a2-53e3-4347-9363-58d463b85adf}
+	AK_ID_DECLARE GUID Orca_unsafeguid = { 0xa3dce7a2, 0x53e3, 0x4347, { 0x93, 0x63, 0x58, 0x4d, 0x63, 0xb8, 0x5a, 0xdf } };
+	AK_ID_DECLARE BasePlatformID Orca = BasePlatformID::Create(Orca_unsafeguid);
 
 	/// Returns true if the given platform has Big Endian byte ordering. 
 	inline bool IsPlatformBigEndian( const BasePlatformID & )
