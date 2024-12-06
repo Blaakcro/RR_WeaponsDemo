@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <SoundBanksInfo Platform="Windows" BasePlatform="Windows" SchemaVersion="16" SoundBankVersion="150">
 	<SoundBanks>
-		<SoundBank Id="2213992659" Type="Bus" GUID="{790B621A-AD9D-4ABE-BEF2-2D35F632FF72}" Language="SFX" Hash="{CDE7DB1D-037D-2548-C37E-EC0BF455D72C}">
+		<SoundBank Id="2213992659" Type="Bus" GUID="{790B621A-AD9D-4ABE-BEF2-2D35F632FF72}" Language="SFX" Hash="{DBA7F02A-66A6-27E0-34A5-936903B3A875}">
 			<ObjectPath>Exterior</ObjectPath>
 			<ShortName>Exterior</ShortName>
 			<Path>Bus/Exterior.bnk</Path>
@@ -10,5 +10,5 @@
 			</AuxBusses>
 		</SoundBank>
 	</SoundBanks>
-	<FileHash>{AD41E69B-B8E5-7775-3DFD-0630C9F88FCE}</FileHash>
+	<FileHash>{414B6AC9-C716-9CF8-A446-EA80D8773C75}</FileHash>
 </SoundBanksInfo>

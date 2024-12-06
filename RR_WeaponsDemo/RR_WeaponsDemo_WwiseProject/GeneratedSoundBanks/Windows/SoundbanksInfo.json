@@ -18,7 +18,7 @@
     "Type": "User",
     "GUID": "{701ECBBD-9C7B-4030-8CDB-749EE5D1C7B9}",
     "Language": "SFX",
-    "Hash": "{B0124312-0855-DD81-22FE-7620C8671125}",
+    "Hash": "{5BFBC534-5545-CD71-1CAE-3DBD9461DD15}",
     "ObjectPath": "Init",
     "ShortName": "Init",
     "Path": "Init.bnk",
@@ -617,7 +617,7 @@
     "Type": "Bus",
     "GUID": "{790B621A-AD9D-4ABE-BEF2-2D35F632FF72}",
     "Language": "SFX",
-    "Hash": "{CDE7DB1D-037D-2548-C37E-EC0BF455D72C}",
+    "Hash": "{DBA7F02A-66A6-27E0-34A5-936903B3A875}",
     "ObjectPath": "Exterior",
     "ShortName": "Exterior",
     "Path": "Bus/Exterior.bnk",
@@ -636,7 +636,7 @@
     "Type": "Bus",
     "GUID": "{7A564B30-81A7-4002-8BB5-8925C20AA907}",
     "Language": "SFX",
-    "Hash": "{F07F7889-C258-8990-DD6C-7236214EC90F}",
+    "Hash": "{CFEE2BBB-AD60-2F3D-3217-54322B8B8B51}",
     "ObjectPath": "RoomSmall",
     "ShortName": "RoomSmall",
     "Path": "Bus/RoomSmall.bnk",
@@ -655,7 +655,7 @@
     "Type": "Bus",
     "GUID": "{516F26D9-E56A-4B15-932C-0A47517CD265}",
     "Language": "SFX",
-    "Hash": "{DDD0FC84-EEAB-1F80-4E31-BFFBBCA45F99}",
+    "Hash": "{820236AD-3533-B803-B87D-EC33A7D05CF9}",
     "ObjectPath": "RoomLarge",
     "ShortName": "RoomLarge",
     "Path": "Bus/RoomLarge.bnk",
@@ -670,6 +670,6 @@
     ]
    }
   ],
-  "FileHash": "{7B1F53E8-BFC6-4454-4BFC-B4990FD145C2}"
+  "FileHash": "{7BC82D04-0C05-167E-854C-507B01C2C558}"
  }
 }

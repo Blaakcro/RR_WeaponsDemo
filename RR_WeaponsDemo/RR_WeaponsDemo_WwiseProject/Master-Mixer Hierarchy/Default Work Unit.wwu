@@ -74,21 +74,6 @@
 											<ObjectRef Name="Env_Volume_1250_Spread85" ID="{757D2E65-CA02-4EBB-9ED5-79A1566F7652}" WorkUnitID="{AED71D1A-7CA6-4E8F-A03C-B29B65813C4B}"/>
 										</Reference>
 									</ReferenceList>
-									<ObjectLists>
-										<ObjectList Name="Effects">
-											<Reference>
-												<Local>
-													<EffectSlot Name="" ID="{5417DC43-5717-45FC-9E8F-3DFFF640BB16}" ShortID="658385055">
-														<ReferenceList>
-															<Reference Name="Effect" PluginName="Wwise Convolution Reverb" CompanyID="0" PluginID="127" PluginType="3">
-																<ObjectRef Name="ScifiBase_LargeRoom" ID="{5A44CD75-DE49-443B-9A30-E53687341D8B}" WorkUnitID="{F5B99CB6-840B-4130-AC27-78C1167F5538}"/>
-															</Reference>
-														</ReferenceList>
-													</EffectSlot>
-												</Local>
-											</Reference>
-										</ObjectList>
-									</ObjectLists>
 								</AuxBus>
 								<AuxBus Name="RoomSmall" ID="{7A564B30-81A7-4002-8BB5-8925C20AA907}">
 									<PropertyList>
@@ -102,21 +87,6 @@
 											<ObjectRef Name="Env_Volume_1250_Spread85" ID="{757D2E65-CA02-4EBB-9ED5-79A1566F7652}" WorkUnitID="{AED71D1A-7CA6-4E8F-A03C-B29B65813C4B}"/>
 										</Reference>
 									</ReferenceList>
-									<ObjectLists>
-										<ObjectList Name="Effects">
-											<Reference>
-												<Local>
-													<EffectSlot Name="" ID="{43DAB504-F528-488E-BB8E-87C1AC74448D}" ShortID="593462226">
-														<ReferenceList>
-															<Reference Name="Effect" PluginName="Wwise Convolution Reverb" CompanyID="0" PluginID="127" PluginType="3">
-																<ObjectRef Name="ScifiBase_LargeRoom" ID="{5A44CD75-DE49-443B-9A30-E53687341D8B}" WorkUnitID="{F5B99CB6-840B-4130-AC27-78C1167F5538}"/>
-															</Reference>
-														</ReferenceList>
-													</EffectSlot>
-												</Local>
-											</Reference>
-										</ObjectList>
-									</ObjectLists>
 								</AuxBus>
 								<AuxBus Name="Exterior" ID="{790B621A-AD9D-4ABE-BEF2-2D35F632FF72}">
 									<PropertyList>
@@ -135,21 +105,6 @@
 											<ObjectRef Name="Env_Volume_1250_Spread85" ID="{757D2E65-CA02-4EBB-9ED5-79A1566F7652}" WorkUnitID="{AED71D1A-7CA6-4E8F-A03C-B29B65813C4B}"/>
 										</Reference>
 									</ReferenceList>
-									<ObjectLists>
-										<ObjectList Name="Effects">
-											<Reference>
-												<Local>
-													<EffectSlot Name="" ID="{824C959E-00BC-479B-9B5B-5AF3734A6323}" ShortID="645248806">
-														<ReferenceList>
-															<Reference Name="Effect" PluginName="Wwise Convolution Reverb" CompanyID="0" PluginID="127" PluginType="3">
-																<ObjectRef Name="ScifiBase_Exterior" ID="{8D4002E1-324C-448E-B3F2-0B0AC213C129}" WorkUnitID="{6C6D71AE-A144-4642-91B3-3CFD44EFF243}"/>
-															</Reference>
-														</ReferenceList>
-													</EffectSlot>
-												</Local>
-											</Reference>
-										</ObjectList>
-									</ObjectLists>
 								</AuxBus>
 							</ChildrenList>
 						</Bus>

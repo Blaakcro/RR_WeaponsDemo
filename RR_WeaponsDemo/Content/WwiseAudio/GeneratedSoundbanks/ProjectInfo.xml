@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ProjectInfo>
-	<Project Name="RR_WeaponsDemo" GUID="{A2904ABD-1068-47A9-AE1A-B3D96B81F0C8}" Generator="2023.1.6.8555"/>
+	<Project Name="RR_WeaponsDemo" GUID="{A2904ABD-1068-47A9-AE1A-B3D96B81F0C8}" Generator="2023.1.8.8601"/>
 	<CacheRoot>../../../RR_WeaponsDemo_WwiseProject/.cache</CacheRoot>
 	<Platforms>
 		<Platform Name="Windows" GUID="{2F2921B2-E6FE-4397-A4C5-D81752A160B8}" BasePlatform="Windows" BasePlatformGUID="{6E0CB257-C6C8-4C5C-8366-2740DFC441EB}" Path="../../../RR_WeaponsDemo_WwiseProject/GeneratedSoundBanks/Windows"/>
@@ -8,5 +8,5 @@
 	<Languages>
 		<Language Name="English(US)" Id="684519430" GUID="{A4522712-8BDB-481C-ADD2-0D080FE88DAF}" Default="true" UseAsStandIn="true"/>
 	</Languages>
-	<FileHash>{9659F52B-F27C-B227-22D8-41ED88E2BDAB}</FileHash>
+	<FileHash>{E2BB7BC7-AAC0-D91D-D7ED-699045725BB4}</FileHash>
 </ProjectInfo>

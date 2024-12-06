@@ -10,7 +10,7 @@
     "Type": "Bus",
     "GUID": "{7A564B30-81A7-4002-8BB5-8925C20AA907}",
     "Language": "SFX",
-    "Hash": "{F07F7889-C258-8990-DD6C-7236214EC90F}",
+    "Hash": "{CFEE2BBB-AD60-2F3D-3217-54322B8B8B51}",
     "ObjectPath": "RoomSmall",
     "ShortName": "RoomSmall",
     "Path": "Bus/RoomSmall.bnk",
@@ -25,6 +25,6 @@
     ]
    }
   ],
-  "FileHash": "{511908EB-6813-A834-5EB1-F621A6103201}"
+  "FileHash": "{CB460160-36CB-770F-5B0B-4FDEA8BCE21C}"
  }
 }
