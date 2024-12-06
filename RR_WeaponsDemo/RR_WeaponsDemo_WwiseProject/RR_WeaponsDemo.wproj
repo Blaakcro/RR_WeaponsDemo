@@ -28,7 +28,6 @@
 						<Value Platform="Windows">256</Value>
 					</ValueList>
 				</Property>
-				<Property Name="LicenseKey" Type="string" Value="PHByb2plY3QgaWQ9IjE1NjYwIiBtYXNrPSJDR0RRNDkyMyIgZW5jPSIwIj48bGlj ZW5zZSBpZD0iMSIgbmFtZT0iV3dpc2UiIHR5cGU9IjMiIHBsYXRmb3Jtcz0iMTAi IGV4cGlyZXM9IjIwMjQtMDktMDEiICAvPjxsaWNlbnNlIGlkPSIyMSIgbmFtZT0i TWFpbnRlbmFuY2UiIHR5cGU9IjMiIHBsYXRmb3Jtcz0iMTAiIGV4cGlyZXM9IjIw MjQtMDktMDEiICAvPjxsaWNlbnNlIGlkPSI3MCIgbmFtZT0iSW5kaWUgTGljZW5z ZSIgdHlwZT0iMyIgcGxhdGZvcm1zPSIxMCIgZXhwaXJlcz0iMjAyNC0wOS0wMSIg IC8+PGxpY2Vuc2UgaWQ9IjYiIG5hbWU9Ild3aXNlIENvbnZvbHV0aW9uIFJldmVy YiIgdHlwZT0iMyIgcGxhdGZvcm1zPSIxMCIgZXhwaXJlcz0iMjAyNC0wOS0wMSIg IC8+PHBsdWdpbiBpZD0iODMyMzA3NSIgbmFtZT0iV3dpc2UgQ29udm9sdXRpb24g UmV2ZXJiIiBsaWNlbnNlPSI2IiAvPjwvcHJvamVjdD4=|pnD/6GL3/U7WZrp139y Ssqh3ULe32ABweLQSH2CEY0TNSd+Nb2WnKCSByzsMMlR1JH+EgiqWhGmwQrqFlsU GZegjQOBOpbUJ+/gYy3SNkQ4YzkK1izPhnEpej1+OrNa7QYpmR2OVhGnewa8gAXa kztath1yKcDt9nvTvnxsXlbiQ4et6NyW9gGOiQuEUeNpxIxTTVEWobUqyzj4cXSI 0DN9G1rJ4HcLXHQuLnIus7EUjSpwHKPvHCDrk/eSkHKtWa9sdX3dMjGPWNkeoimZ 91MiIOGkUxsU9obzXQ9Iw49AqYZIofMYeRE2NOJYnfKXdfX0OUzjc31EvwojjJXB AyA== "/>
 				<Property Name="SoundBankHeaderFilePath" Type="string" Value="..\Content\WwiseAudio\GeneratedSoundbanks"/>
 				<Property Name="SoundBankPaths" Type="string">
 					<ValueList>
